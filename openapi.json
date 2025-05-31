@@ -1,0 +1,4640 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Backend Defect API",
+      "description": "API for managing construction defects",
+      "version": "1.0.0"
+    },
+    "paths": {
+      "/projects/": {
+        "post": {
+          "tags": [
+            "Projects"
+          ],
+          "summary": "Create Project",
+          "description": "Create a new project",
+          "operationId": "create_project_projects__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Projects"
+          ],
+          "summary": "Read Projects",
+          "description": "Get a list of projects with pagination",
+          "operationId": "read_projects_projects__get",
+          "parameters": [
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ProjectOut"
+                    },
+                    "title": "Response Read Projects Projects  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/{project_id}": {
+        "get": {
+          "tags": [
+            "Projects"
+          ],
+          "summary": "Read Project",
+          "description": "Get a specific project by ID",
+          "operationId": "read_project_projects__project_id__get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Projects"
+          ],
+          "summary": "Update Project",
+          "description": "Update a project",
+          "operationId": "update_project_projects__project_id__put",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Projects"
+          ],
+          "summary": "Delete Project",
+          "description": "Delete a project",
+          "operationId": "delete_project_projects__project_id__delete",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/{project_id}/with-counts": {
+        "get": {
+          "tags": [
+            "Projects"
+          ],
+          "summary": "Read Project With Counts",
+          "description": "Get a specific project with counts of related entities",
+          "operationId": "read_project_with_counts_projects__project_id__with_counts_get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectWithCountsOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/": {
+        "post": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Create User",
+          "description": "Create a new user",
+          "operationId": "create_user_users__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Read Users",
+          "description": "Get a list of users with pagination",
+          "operationId": "read_users_users__get",
+          "parameters": [
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/UserOut"
+                    },
+                    "title": "Response Read Users Users  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{user_id}": {
+        "get": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Read User",
+          "description": "Get a specific user by ID",
+          "operationId": "read_user_users__user_id__get",
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "User Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Update User",
+          "description": "Update a user",
+          "operationId": "update_user_users__user_id__put",
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "User Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Delete User",
+          "description": "Delete a user",
+          "operationId": "delete_user_users__user_id__delete",
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "User Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/line/{line_id}": {
+        "get": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Read User By Line Id",
+          "description": "Get a specific user by LINE ID",
+          "operationId": "read_user_by_line_id_users_line__line_id__get",
+          "parameters": [
+            {
+              "name": "line_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Line Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{user_id}/projects": {
+        "get": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Read User With Projects",
+          "description": "Get a specific user with their projects and roles",
+          "operationId": "read_user_with_projects_users__user_id__projects_get",
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "User Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserWithProjectsOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/permissions/": {
+        "post": {
+          "tags": [
+            "Permissions"
+          ],
+          "summary": "Create Permission",
+          "description": "Create a new permission",
+          "operationId": "create_permission_permissions__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PermissionOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Permissions"
+          ],
+          "summary": "Read Permissions",
+          "description": "Get a list of permissions with pagination and optional filtering",
+          "operationId": "read_permissions_permissions__get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "user_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "User Id"
+              }
+            },
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PermissionWithDetailsOut"
+                    },
+                    "title": "Response Read Permissions Permissions  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/permissions/{permission_id}": {
+        "get": {
+          "tags": [
+            "Permissions"
+          ],
+          "summary": "Read Permission",
+          "description": "Get a specific permission by ID",
+          "operationId": "read_permission_permissions__permission_id__get",
+          "parameters": [
+            {
+              "name": "permission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Permission Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PermissionOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Permissions"
+          ],
+          "summary": "Update Permission",
+          "description": "Update a permission",
+          "operationId": "update_permission_permissions__permission_id__put",
+          "parameters": [
+            {
+              "name": "permission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Permission Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PermissionOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Permissions"
+          ],
+          "summary": "Delete Permission",
+          "description": "Delete a permission",
+          "operationId": "delete_permission_permissions__permission_id__delete",
+          "parameters": [
+            {
+              "name": "permission_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Permission Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/base-maps/": {
+        "post": {
+          "tags": [
+            "Base Maps"
+          ],
+          "summary": "Create Base Map",
+          "description": "Create a new base map",
+          "operationId": "create_base_map_base_maps__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMapCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BaseMapOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Base Maps"
+          ],
+          "summary": "Read Base Maps",
+          "description": "Get a list of base maps with pagination and optional filtering by project",
+          "operationId": "read_base_maps_base_maps__get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/BaseMapOut"
+                    },
+                    "title": "Response Read Base Maps Base Maps  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/base-maps/project/{project_id}/with-counts": {
+        "get": {
+          "tags": [
+            "Base Maps"
+          ],
+          "summary": "Read Base Maps With Defect Counts",
+          "description": "Get base maps with defect counts for a project",
+          "operationId": "read_base_maps_with_defect_counts_base_maps_project__project_id__with_counts_get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/BaseMapWithDefectCountOut"
+                    },
+                    "title": "Response Read Base Maps With Defect Counts Base Maps Project  Project Id  With Counts Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/base-maps/{base_map_id}": {
+        "get": {
+          "tags": [
+            "Base Maps"
+          ],
+          "summary": "Read Base Map",
+          "description": "Get a specific base map by ID",
+          "operationId": "read_base_map_base_maps__base_map_id__get",
+          "parameters": [
+            {
+              "name": "base_map_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Base Map Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BaseMapOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Base Maps"
+          ],
+          "summary": "Update Base Map",
+          "description": "Update a base map",
+          "operationId": "update_base_map_base_maps__base_map_id__put",
+          "parameters": [
+            {
+              "name": "base_map_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Base Map Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMapUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BaseMapOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Base Maps"
+          ],
+          "summary": "Delete Base Map",
+          "description": "Delete a base map",
+          "operationId": "delete_base_map_base_maps__base_map_id__delete",
+          "parameters": [
+            {
+              "name": "base_map_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Base Map Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/vendors/": {
+        "post": {
+          "tags": [
+            "Vendors"
+          ],
+          "summary": "Create Vendor",
+          "description": "Create a new vendor",
+          "operationId": "create_vendor_vendors__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/VendorOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Vendors"
+          ],
+          "summary": "Read Vendors",
+          "description": "Get a list of vendors with pagination",
+          "operationId": "read_vendors_vendors__get",
+          "parameters": [
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/VendorOut"
+                    },
+                    "title": "Response Read Vendors Vendors  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/vendors/with-counts": {
+        "get": {
+          "tags": [
+            "Vendors"
+          ],
+          "summary": "Read Vendors With Defect Counts",
+          "description": "Get vendors with defect counts",
+          "operationId": "read_vendors_with_defect_counts_vendors_with_counts_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/VendorWithDefectCountOut"
+                    },
+                    "type": "array",
+                    "title": "Response Read Vendors With Defect Counts Vendors With Counts Get"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/vendors/{vendor_id}": {
+        "get": {
+          "tags": [
+            "Vendors"
+          ],
+          "summary": "Read Vendor",
+          "description": "Get a specific vendor by ID",
+          "operationId": "read_vendor_vendors__vendor_id__get",
+          "parameters": [
+            {
+              "name": "vendor_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Vendor Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/VendorOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Vendors"
+          ],
+          "summary": "Update Vendor",
+          "description": "Update a vendor",
+          "operationId": "update_vendor_vendors__vendor_id__put",
+          "parameters": [
+            {
+              "name": "vendor_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Vendor Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/VendorOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Vendors"
+          ],
+          "summary": "Delete Vendor",
+          "description": "Delete a vendor",
+          "operationId": "delete_vendor_vendors__vendor_id__delete",
+          "parameters": [
+            {
+              "name": "vendor_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Vendor Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defect-categories/": {
+        "post": {
+          "tags": [
+            "Defect Categories"
+          ],
+          "summary": "Create Defect Category",
+          "description": "Create a new defect category",
+          "operationId": "create_defect_category_defect_categories__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefectCategoryCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectCategoryOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Defect Categories"
+          ],
+          "summary": "Read Defect Categories",
+          "description": "Get a list of defect categories with pagination",
+          "operationId": "read_defect_categories_defect_categories__get",
+          "parameters": [
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/DefectCategoryOut"
+                    },
+                    "title": "Response Read Defect Categories Defect Categories  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defect-categories/with-counts": {
+        "get": {
+          "tags": [
+            "Defect Categories"
+          ],
+          "summary": "Read Defect Categories With Counts",
+          "description": "Get defect categories with defect counts",
+          "operationId": "read_defect_categories_with_counts_defect_categories_with_counts_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/DefectCategoryWithCountOut"
+                    },
+                    "type": "array",
+                    "title": "Response Read Defect Categories With Counts Defect Categories With Counts Get"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defect-categories/{defect_category_id}": {
+        "get": {
+          "tags": [
+            "Defect Categories"
+          ],
+          "summary": "Read Defect Category",
+          "description": "Get a specific defect category by ID",
+          "operationId": "read_defect_category_defect_categories__defect_category_id__get",
+          "parameters": [
+            {
+              "name": "defect_category_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Category Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectCategoryOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Defect Categories"
+          ],
+          "summary": "Update Defect Category",
+          "description": "Update a defect category",
+          "operationId": "update_defect_category_defect_categories__defect_category_id__put",
+          "parameters": [
+            {
+              "name": "defect_category_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Category Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefectCategoryUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectCategoryOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Defect Categories"
+          ],
+          "summary": "Delete Defect Category",
+          "description": "Delete a defect category",
+          "operationId": "delete_defect_category_defect_categories__defect_category_id__delete",
+          "parameters": [
+            {
+              "name": "defect_category_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Category Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defects/": {
+        "post": {
+          "tags": [
+            "Defects"
+          ],
+          "summary": "Create Defect",
+          "description": "Create a new defect",
+          "operationId": "create_defect_defects__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefectCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Defects"
+          ],
+          "summary": "Read Defects",
+          "description": "Get a list of defects with pagination and optional filtering",
+          "operationId": "read_defects_defects__get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "submitted_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Submitted Id"
+              }
+            },
+            {
+              "name": "defect_category_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Defect Category Id"
+              }
+            },
+            {
+              "name": "assigned_vendor_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Assigned Vendor Id"
+              }
+            },
+            {
+              "name": "confirmation_status",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Confirmation Status"
+              }
+            },
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/DefectOut"
+                    },
+                    "title": "Response Read Defects Defects  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defects/stats": {
+        "get": {
+          "tags": [
+            "Defects"
+          ],
+          "summary": "Read Defect Stats",
+          "description": "Get defect statistics",
+          "operationId": "read_defect_stats_defects_stats_get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Project Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "title": "Response Read Defect Stats Defects Stats Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defects/{defect_id}": {
+        "get": {
+          "tags": [
+            "Defects"
+          ],
+          "summary": "Read Defect",
+          "description": "Get a specific defect by ID with details",
+          "operationId": "read_defect_defects__defect_id__get",
+          "parameters": [
+            {
+              "name": "defect_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectDetailOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Defects"
+          ],
+          "summary": "Update Defect",
+          "description": "Update a defect",
+          "operationId": "update_defect_defects__defect_id__put",
+          "parameters": [
+            {
+              "name": "defect_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefectUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Defects"
+          ],
+          "summary": "Delete Defect",
+          "description": "Delete a defect",
+          "operationId": "delete_defect_defects__defect_id__delete",
+          "parameters": [
+            {
+              "name": "defect_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defects/{defect_id}/full": {
+        "get": {
+          "tags": [
+            "Defects"
+          ],
+          "summary": "Read Defect Full",
+          "description": "Get a specific defect by ID with all related data",
+          "operationId": "read_defect_full_defects__defect_id__full_get",
+          "parameters": [
+            {
+              "name": "defect_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectWithMarksAndPhotosOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defect-marks/": {
+        "post": {
+          "tags": [
+            "Defect Marks"
+          ],
+          "summary": "Create Defect Mark",
+          "description": "Create a new defect mark",
+          "operationId": "create_defect_mark_defect_marks__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefectMarkCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectMarkOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Defect Marks"
+          ],
+          "summary": "Read Defect Marks",
+          "description": "Get a list of defect marks with pagination and optional filtering",
+          "operationId": "read_defect_marks_defect_marks__get",
+          "parameters": [
+            {
+              "name": "defect_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Defect Id"
+              }
+            },
+            {
+              "name": "base_map_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Base Map Id"
+              }
+            },
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/DefectMarkOut"
+                    },
+                    "title": "Response Read Defect Marks Defect Marks  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defect-marks/with-details": {
+        "get": {
+          "tags": [
+            "Defect Marks"
+          ],
+          "summary": "Read Defect Marks With Details",
+          "description": "Get defect marks with defect and base map details",
+          "operationId": "read_defect_marks_with_details_defect_marks_with_details_get",
+          "parameters": [
+            {
+              "name": "base_map_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Base Map Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/DefectMarkWithDetailsOut"
+                    },
+                    "title": "Response Read Defect Marks With Details Defect Marks With Details Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/defect-marks/{defect_mark_id}": {
+        "get": {
+          "tags": [
+            "Defect Marks"
+          ],
+          "summary": "Read Defect Mark",
+          "description": "Get a specific defect mark by ID",
+          "operationId": "read_defect_mark_defect_marks__defect_mark_id__get",
+          "parameters": [
+            {
+              "name": "defect_mark_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Mark Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectMarkOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Defect Marks"
+          ],
+          "summary": "Update Defect Mark",
+          "description": "Update a defect mark",
+          "operationId": "update_defect_mark_defect_marks__defect_mark_id__put",
+          "parameters": [
+            {
+              "name": "defect_mark_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Mark Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefectMarkUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DefectMarkOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Defect Marks"
+          ],
+          "summary": "Delete Defect Mark",
+          "description": "Delete a defect mark",
+          "operationId": "delete_defect_mark_defect_marks__defect_mark_id__delete",
+          "parameters": [
+            {
+              "name": "defect_mark_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Defect Mark Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/photos/": {
+        "post": {
+          "tags": [
+            "Photos"
+          ],
+          "summary": "Create Photo",
+          "description": "Create a new photo (manual entry with URL)",
+          "operationId": "create_photo_photos__post",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PhotoResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Photos"
+          ],
+          "summary": "Read Photos",
+          "description": "Get a list of photos with pagination and optional filtering",
+          "operationId": "read_photos_photos__get",
+          "parameters": [
+            {
+              "name": "defect_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Defect Id"
+              }
+            },
+            {
+              "name": "photo_type",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Photo Type"
+              }
+            },
+            {
+              "name": "skip",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0,
+                "title": "Skip"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "default": 100,
+                "title": "Limit"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PhotoResponse"
+                    },
+                    "title": "Response Read Photos Photos  Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/photos/upload/": {
+        "post": {
+          "tags": [
+            "Photos"
+          ],
+          "summary": "Upload Photo",
+          "description": "Upload a new photo file",
+          "operationId": "upload_photo_photos_upload__post",
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_upload_photo_photos_upload__post"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PhotoResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/photos/{photo_id}": {
+        "get": {
+          "tags": [
+            "Photos"
+          ],
+          "summary": "Read Photo",
+          "description": "Get a specific photo by ID",
+          "operationId": "read_photo_photos__photo_id__get",
+          "parameters": [
+            {
+              "name": "photo_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Photo Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PhotoResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Photos"
+          ],
+          "summary": "Update Photo",
+          "description": "Update a photo",
+          "operationId": "update_photo_photos__photo_id__put",
+          "parameters": [
+            {
+              "name": "photo_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Photo Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PhotoResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Photos"
+          ],
+          "summary": "Delete Photo",
+          "description": "Delete a photo",
+          "operationId": "delete_photo_photos__photo_id__delete",
+          "parameters": [
+            {
+              "name": "photo_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Photo Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/": {
+        "get": {
+          "summary": "Root",
+          "operationId": "root__get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "BaseMapCreate": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "map_name": {
+              "type": "string",
+              "title": "Map Name"
+            },
+            "file_path": {
+              "type": "string",
+              "title": "File Path"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "map_name",
+            "file_path"
+          ],
+          "title": "BaseMapCreate"
+        },
+        "BaseMapOut": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "map_name": {
+              "type": "string",
+              "title": "Map Name"
+            },
+            "file_path": {
+              "type": "string",
+              "title": "File Path"
+            },
+            "base_map_id": {
+              "type": "integer",
+              "title": "Base Map Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "map_name",
+            "file_path",
+            "base_map_id"
+          ],
+          "title": "BaseMapOut"
+        },
+        "BaseMapUpdate": {
+          "properties": {
+            "map_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Map Name"
+            },
+            "file_path": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "File Path"
+            }
+          },
+          "type": "object",
+          "title": "BaseMapUpdate"
+        },
+        "BaseMapWithDefectCountOut": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "map_name": {
+              "type": "string",
+              "title": "Map Name"
+            },
+            "file_path": {
+              "type": "string",
+              "title": "File Path"
+            },
+            "base_map_id": {
+              "type": "integer",
+              "title": "Base Map Id"
+            },
+            "defect_count": {
+              "type": "integer",
+              "title": "Defect Count"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "map_name",
+            "file_path",
+            "base_map_id",
+            "defect_count"
+          ],
+          "title": "BaseMapWithDefectCountOut"
+        },
+        "Body_upload_photo_photos_upload__post": {
+          "properties": {
+            "file": {
+              "type": "string",
+              "format": "binary",
+              "title": "File"
+            },
+            "defect_form_id": {
+              "type": "integer",
+              "title": "Defect Form Id"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "photo_type": {
+              "type": "string",
+              "title": "Photo Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "file",
+            "defect_form_id",
+            "photo_type"
+          ],
+          "title": "Body_upload_photo_photos_upload__post"
+        },
+        "DefectCategoryCreate": {
+          "properties": {
+            "category_name": {
+              "type": "string",
+              "title": "Category Name"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            }
+          },
+          "type": "object",
+          "required": [
+            "category_name"
+          ],
+          "title": "DefectCategoryCreate"
+        },
+        "DefectCategoryOut": {
+          "properties": {
+            "category_name": {
+              "type": "string",
+              "title": "Category Name"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "defect_category_id": {
+              "type": "integer",
+              "title": "Defect Category Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "category_name",
+            "defect_category_id"
+          ],
+          "title": "DefectCategoryOut"
+        },
+        "DefectCategoryUpdate": {
+          "properties": {
+            "category_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Name"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            }
+          },
+          "type": "object",
+          "title": "DefectCategoryUpdate"
+        },
+        "DefectCategoryWithCountOut": {
+          "properties": {
+            "category_name": {
+              "type": "string",
+              "title": "Category Name"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "defect_category_id": {
+              "type": "integer",
+              "title": "Defect Category Id"
+            },
+            "defect_count": {
+              "type": "integer",
+              "title": "Defect Count"
+            }
+          },
+          "type": "object",
+          "required": [
+            "category_name",
+            "defect_category_id",
+            "defect_count"
+          ],
+          "title": "DefectCategoryWithCountOut"
+        },
+        "DefectCreate": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "submitted_id": {
+              "type": "integer",
+              "title": "Submitted Id"
+            },
+            "defect_category_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Defect Category Id"
+            },
+            "defect_description": {
+              "type": "string",
+              "title": "Defect Description"
+            },
+            "assigned_vendor_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned Vendor Id"
+            },
+            "repair_description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Description"
+            },
+            "repair_completed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Completed At"
+            },
+            "confirmation_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Status"
+            },
+            "confirmation_time": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Time"
+            },
+            "confirmer_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmer Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "submitted_id",
+            "defect_description"
+          ],
+          "title": "DefectCreate"
+        },
+        "DefectDetailOut": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "submitted_id": {
+              "type": "integer",
+              "title": "Submitted Id"
+            },
+            "defect_category_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Defect Category Id"
+            },
+            "defect_description": {
+              "type": "string",
+              "title": "Defect Description"
+            },
+            "assigned_vendor_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned Vendor Id"
+            },
+            "repair_description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Description"
+            },
+            "repair_completed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Completed At"
+            },
+            "confirmation_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Status"
+            },
+            "confirmation_time": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Time"
+            },
+            "confirmer_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmer Id"
+            },
+            "defect_id": {
+              "type": "integer",
+              "title": "Defect Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Updated At"
+            },
+            "project_name": {
+              "type": "string",
+              "title": "Project Name"
+            },
+            "submitter_name": {
+              "type": "string",
+              "title": "Submitter Name"
+            },
+            "category_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Name"
+            },
+            "vendor_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Name"
+            },
+            "confirmer_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmer Name"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "submitted_id",
+            "defect_description",
+            "defect_id",
+            "created_at",
+            "updated_at",
+            "project_name",
+            "submitter_name"
+          ],
+          "title": "DefectDetailOut"
+        },
+        "DefectMarkCreate": {
+          "properties": {
+            "defect_form_id": {
+              "type": "integer",
+              "title": "Defect Form Id"
+            },
+            "base_map_id": {
+              "type": "integer",
+              "title": "Base Map Id"
+            },
+            "coordinate_x": {
+              "type": "number",
+              "title": "Coordinate X"
+            },
+            "coordinate_y": {
+              "type": "number",
+              "title": "Coordinate Y"
+            },
+            "scale": {
+              "type": "number",
+              "title": "Scale"
+            }
+          },
+          "type": "object",
+          "required": [
+            "defect_form_id",
+            "base_map_id",
+            "coordinate_x",
+            "coordinate_y",
+            "scale"
+          ],
+          "title": "DefectMarkCreate"
+        },
+        "DefectMarkOut": {
+          "properties": {
+            "defect_form_id": {
+              "type": "integer",
+              "title": "Defect Form Id"
+            },
+            "base_map_id": {
+              "type": "integer",
+              "title": "Base Map Id"
+            },
+            "coordinate_x": {
+              "type": "number",
+              "title": "Coordinate X"
+            },
+            "coordinate_y": {
+              "type": "number",
+              "title": "Coordinate Y"
+            },
+            "scale": {
+              "type": "number",
+              "title": "Scale"
+            },
+            "defect_mark_id": {
+              "type": "integer",
+              "title": "Defect Mark Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "defect_form_id",
+            "base_map_id",
+            "coordinate_x",
+            "coordinate_y",
+            "scale",
+            "defect_mark_id"
+          ],
+          "title": "DefectMarkOut"
+        },
+        "DefectMarkUpdate": {
+          "properties": {
+            "coordinate_x": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Coordinate X"
+            },
+            "coordinate_y": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Coordinate Y"
+            },
+            "scale": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Scale"
+            }
+          },
+          "type": "object",
+          "title": "DefectMarkUpdate"
+        },
+        "DefectMarkWithDetailsOut": {
+          "properties": {
+            "defect_form_id": {
+              "type": "integer",
+              "title": "Defect Form Id"
+            },
+            "base_map_id": {
+              "type": "integer",
+              "title": "Base Map Id"
+            },
+            "coordinate_x": {
+              "type": "number",
+              "title": "Coordinate X"
+            },
+            "coordinate_y": {
+              "type": "number",
+              "title": "Coordinate Y"
+            },
+            "scale": {
+              "type": "number",
+              "title": "Scale"
+            },
+            "defect_mark_id": {
+              "type": "integer",
+              "title": "Defect Mark Id"
+            },
+            "defect_description": {
+              "type": "string",
+              "title": "Defect Description"
+            },
+            "map_name": {
+              "type": "string",
+              "title": "Map Name"
+            }
+          },
+          "type": "object",
+          "required": [
+            "defect_form_id",
+            "base_map_id",
+            "coordinate_x",
+            "coordinate_y",
+            "scale",
+            "defect_mark_id",
+            "defect_description",
+            "map_name"
+          ],
+          "title": "DefectMarkWithDetailsOut"
+        },
+        "DefectOut": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "submitted_id": {
+              "type": "integer",
+              "title": "Submitted Id"
+            },
+            "defect_category_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Defect Category Id"
+            },
+            "defect_description": {
+              "type": "string",
+              "title": "Defect Description"
+            },
+            "assigned_vendor_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned Vendor Id"
+            },
+            "repair_description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Description"
+            },
+            "repair_completed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Completed At"
+            },
+            "confirmation_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Status"
+            },
+            "confirmation_time": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Time"
+            },
+            "confirmer_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmer Id"
+            },
+            "defect_id": {
+              "type": "integer",
+              "title": "Defect Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Updated At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "submitted_id",
+            "defect_description",
+            "defect_id",
+            "created_at",
+            "updated_at"
+          ],
+          "title": "DefectOut"
+        },
+        "DefectUpdate": {
+          "properties": {
+            "defect_category_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Defect Category Id"
+            },
+            "defect_description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Defect Description"
+            },
+            "assigned_vendor_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned Vendor Id"
+            },
+            "repair_description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Description"
+            },
+            "repair_completed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Completed At"
+            },
+            "confirmation_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Status"
+            },
+            "confirmation_time": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Time"
+            },
+            "confirmer_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmer Id"
+            }
+          },
+          "type": "object",
+          "title": "DefectUpdate"
+        },
+        "DefectWithMarksAndPhotosOut": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "submitted_id": {
+              "type": "integer",
+              "title": "Submitted Id"
+            },
+            "defect_category_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Defect Category Id"
+            },
+            "defect_description": {
+              "type": "string",
+              "title": "Defect Description"
+            },
+            "assigned_vendor_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned Vendor Id"
+            },
+            "repair_description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Description"
+            },
+            "repair_completed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repair Completed At"
+            },
+            "confirmation_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Status"
+            },
+            "confirmation_time": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmation Time"
+            },
+            "confirmer_id": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmer Id"
+            },
+            "defect_id": {
+              "type": "integer",
+              "title": "Defect Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Updated At"
+            },
+            "project_name": {
+              "type": "string",
+              "title": "Project Name"
+            },
+            "submitter_name": {
+              "type": "string",
+              "title": "Submitter Name"
+            },
+            "category_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Name"
+            },
+            "vendor_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Name"
+            },
+            "confirmer_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confirmer Name"
+            },
+            "defect_marks": {
+              "items": {
+                "$ref": "#/components/schemas/DefectMarkOut"
+              },
+              "type": "array",
+              "title": "Defect Marks",
+              "default": []
+            },
+            "photos": {
+              "items": {
+                "$ref": "#/components/schemas/PhotoOut"
+              },
+              "type": "array",
+              "title": "Photos",
+              "default": []
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "submitted_id",
+            "defect_description",
+            "defect_id",
+            "created_at",
+            "updated_at",
+            "project_name",
+            "submitter_name"
+          ],
+          "title": "DefectWithMarksAndPhotosOut"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "PermissionCreate": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "user_id": {
+              "type": "integer",
+              "title": "User Id"
+            },
+            "user_role": {
+              "type": "string",
+              "title": "User Role"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "user_id",
+            "user_role"
+          ],
+          "title": "PermissionCreate"
+        },
+        "PermissionOut": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "user_id": {
+              "type": "integer",
+              "title": "User Id"
+            },
+            "user_role": {
+              "type": "string",
+              "title": "User Role"
+            },
+            "permission_id": {
+              "type": "integer",
+              "title": "Permission Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "user_id",
+            "user_role",
+            "permission_id"
+          ],
+          "title": "PermissionOut"
+        },
+        "PermissionUpdate": {
+          "properties": {
+            "user_role": {
+              "type": "string",
+              "title": "User Role"
+            }
+          },
+          "type": "object",
+          "required": [
+            "user_role"
+          ],
+          "title": "PermissionUpdate"
+        },
+        "PermissionWithDetailsOut": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "user_id": {
+              "type": "integer",
+              "title": "User Id"
+            },
+            "user_role": {
+              "type": "string",
+              "title": "User Role"
+            },
+            "permission_id": {
+              "type": "integer",
+              "title": "Permission Id"
+            },
+            "project_name": {
+              "type": "string",
+              "title": "Project Name"
+            },
+            "user_name": {
+              "type": "string",
+              "title": "User Name"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "user_id",
+            "user_role",
+            "permission_id",
+            "project_name",
+            "user_name"
+          ],
+          "title": "PermissionWithDetailsOut"
+        },
+        "PhotoCreate": {
+          "properties": {
+            "defect_form_id": {
+              "type": "integer",
+              "title": "Defect Form Id"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "photo_type": {
+              "type": "string",
+              "title": "Photo Type"
+            },
+            "image_url": {
+              "type": "string",
+              "title": "Image Url"
+            }
+          },
+          "type": "object",
+          "required": [
+            "defect_form_id",
+            "photo_type",
+            "image_url"
+          ],
+          "title": "PhotoCreate"
+        },
+        "PhotoOut": {
+          "properties": {
+            "defect_form_id": {
+              "type": "integer",
+              "title": "Defect Form Id"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "photo_type": {
+              "type": "string",
+              "title": "Photo Type"
+            },
+            "image_url": {
+              "type": "string",
+              "title": "Image Url"
+            },
+            "photo_id": {
+              "type": "integer",
+              "title": "Photo Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "defect_form_id",
+            "photo_type",
+            "image_url",
+            "photo_id",
+            "created_at"
+          ],
+          "title": "PhotoOut"
+        },
+        "PhotoResponse": {
+          "properties": {
+            "defect_form_id": {
+              "type": "integer",
+              "title": "Defect Form Id"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "photo_type": {
+              "type": "string",
+              "title": "Photo Type"
+            },
+            "image_url": {
+              "type": "string",
+              "title": "Image Url"
+            },
+            "photo_id": {
+              "type": "integer",
+              "title": "Photo Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "full_url": {
+              "type": "string",
+              "title": "Full Url",
+              "description": "Full URL to access the photo"
+            }
+          },
+          "type": "object",
+          "required": [
+            "defect_form_id",
+            "photo_type",
+            "image_url",
+            "photo_id",
+            "created_at",
+            "full_url"
+          ],
+          "title": "PhotoResponse",
+          "description": "Response model with full URL for frontend display"
+        },
+        "PhotoUpdate": {
+          "properties": {
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "photo_type": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Photo Type"
+            },
+            "image_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Image Url"
+            }
+          },
+          "type": "object",
+          "title": "PhotoUpdate"
+        },
+        "ProjectCreate": {
+          "properties": {
+            "project_name": {
+              "type": "string",
+              "title": "Project Name"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_name"
+          ],
+          "title": "ProjectCreate"
+        },
+        "ProjectInfo": {
+          "properties": {
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "project_name": {
+              "type": "string",
+              "title": "Project Name"
+            },
+            "role": {
+              "type": "string",
+              "title": "Role"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_id",
+            "project_name",
+            "role"
+          ],
+          "title": "ProjectInfo"
+        },
+        "ProjectOut": {
+          "properties": {
+            "project_name": {
+              "type": "string",
+              "title": "Project Name"
+            },
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_name",
+            "project_id",
+            "created_at"
+          ],
+          "title": "ProjectOut"
+        },
+        "ProjectUpdate": {
+          "properties": {
+            "project_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Name"
+            }
+          },
+          "type": "object",
+          "title": "ProjectUpdate"
+        },
+        "ProjectWithCountsOut": {
+          "properties": {
+            "project_name": {
+              "type": "string",
+              "title": "Project Name"
+            },
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "base_map_count": {
+              "type": "integer",
+              "title": "Base Map Count"
+            },
+            "defect_count": {
+              "type": "integer",
+              "title": "Defect Count"
+            },
+            "user_count": {
+              "type": "integer",
+              "title": "User Count"
+            }
+          },
+          "type": "object",
+          "required": [
+            "project_name",
+            "project_id",
+            "created_at",
+            "base_map_count",
+            "defect_count",
+            "user_count"
+          ],
+          "title": "ProjectWithCountsOut"
+        },
+        "UserCreate": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "email": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "email"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Email"
+            },
+            "company_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Company Name"
+            },
+            "line_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "title": "UserCreate"
+        },
+        "UserOut": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "email": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "email"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Email"
+            },
+            "company_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Company Name"
+            },
+            "line_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Id"
+            },
+            "user_id": {
+              "type": "integer",
+              "title": "User Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "name",
+            "user_id",
+            "created_at"
+          ],
+          "title": "UserOut"
+        },
+        "UserUpdate": {
+          "properties": {
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            },
+            "email": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "email"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Email"
+            },
+            "company_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Company Name"
+            },
+            "line_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Id"
+            }
+          },
+          "type": "object",
+          "title": "UserUpdate"
+        },
+        "UserWithProjectsOut": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "email": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "email"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Email"
+            },
+            "company_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Company Name"
+            },
+            "line_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Id"
+            },
+            "user_id": {
+              "type": "integer",
+              "title": "User Id"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "projects": {
+              "items": {
+                "$ref": "#/components/schemas/ProjectInfo"
+              },
+              "type": "array",
+              "title": "Projects",
+              "default": []
+            }
+          },
+          "type": "object",
+          "required": [
+            "name",
+            "user_id",
+            "created_at"
+          ],
+          "title": "UserWithProjectsOut"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        },
+        "VendorCreate": {
+          "properties": {
+            "vendor_name": {
+              "type": "string",
+              "title": "Vendor Name"
+            },
+            "contact_person": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Contact Person"
+            },
+            "phone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone"
+            },
+            "responsibilities": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Responsibilities"
+            }
+          },
+          "type": "object",
+          "required": [
+            "vendor_name"
+          ],
+          "title": "VendorCreate"
+        },
+        "VendorOut": {
+          "properties": {
+            "vendor_name": {
+              "type": "string",
+              "title": "Vendor Name"
+            },
+            "contact_person": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Contact Person"
+            },
+            "phone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone"
+            },
+            "responsibilities": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Responsibilities"
+            },
+            "vendor_id": {
+              "type": "integer",
+              "title": "Vendor Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "vendor_name",
+            "vendor_id"
+          ],
+          "title": "VendorOut"
+        },
+        "VendorUpdate": {
+          "properties": {
+            "vendor_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Name"
+            },
+            "contact_person": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Contact Person"
+            },
+            "phone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone"
+            },
+            "responsibilities": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Responsibilities"
+            }
+          },
+          "type": "object",
+          "title": "VendorUpdate"
+        },
+        "VendorWithDefectCountOut": {
+          "properties": {
+            "vendor_name": {
+              "type": "string",
+              "title": "Vendor Name"
+            },
+            "contact_person": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Contact Person"
+            },
+            "phone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phone"
+            },
+            "responsibilities": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Responsibilities"
+            },
+            "vendor_id": {
+              "type": "integer",
+              "title": "Vendor Id"
+            },
+            "defect_count": {
+              "type": "integer",
+              "title": "Defect Count"
+            }
+          },
+          "type": "object",
+          "required": [
+            "vendor_name",
+            "vendor_id",
+            "defect_count"
+          ],
+          "title": "VendorWithDefectCountOut"
+        }
+      }
+    }
+  }
