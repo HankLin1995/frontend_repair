@@ -240,3 +240,26 @@ def get_users():
     except requests.exceptions.RequestException as e:
         print(f"Error fetching users: {e}")
         return []
+
+def get_defect_categories():
+    url = f"{BASE_URL}/defect-categories/"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching defect categories: {e}")
+        return []
+    
+def get_vendors():
+    url = f"{BASE_URL}/vendors/"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching vendors: {e}")
+        return []
+    

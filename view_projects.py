@@ -100,9 +100,9 @@ def render_project_card(project, image_url):
         # 工程元數據
         created_at = format_date(project.get('created_at', 'N/A'))
         st.caption(f"建立時間: {created_at}")
-
+        st.progress(30/100,"目前進度(30%)")
         # 工程狀態
-        # st.badge("工程進行中", color="blue")
+        st.badge("工程進行中", color="blue")
 
         # st.markdown("**角色:**" + project['role'])
 
@@ -215,15 +215,16 @@ def main():
     
     # 頁面標題
     st.header("📋 工程列表")
-    st.caption("請將工程設為當前工程後，即可進入工程詳情頁面")
+    st.caption("剛登入時請先將工程設為當前工程，即可進行相關操作!")
     # st.markdown("---")
-    tab1,tab2=st.tabs(["卡片檢視","清單檢視"])
-    with tab1:
+    # tab1,tab2=st.tabs(["卡片檢視","清單檢視"])
+    # with tab1:
         # 顯示工程卡片
-        display_projects_card()
-    with tab2:
-        # 顯示工程清單
-        display_projects_list()
+    display_projects_card()
+    # with tab2:    
+    #     st.info("用卡片看就好，這個太醜了")
+    #     # 顯示工程清單
+    #     display_projects_list()
     
     # 新增工程按鈕
     st.divider()

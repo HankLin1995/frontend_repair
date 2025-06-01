@@ -50,7 +50,11 @@ def display_user_card(users):
             with st.container(border=True):
                 col1,col2=st.columns([1,2])
                 with col1:
-                    avatar_url = f"https://i.pravatar.cc/150?u={user['user_email']}"
+                    # avatar_url = f"https://i.pravatar.cc/150?u={user['user_email']}"
+                    if user['avatar_path']!="static/avatar/default.png":
+                        avatar_url=f"http://localhost:8000/{user['avatar_path']}"
+                    else:
+                        avatar_url=f"https://i.pravatar.cc/150?u={user['user_email']}"
                     st.markdown(
                         f"<img src='{avatar_url}' style='border-radius:50%;width:100px;height:100px;object-fit:cover;'>",
                         unsafe_allow_html=True
