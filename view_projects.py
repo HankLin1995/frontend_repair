@@ -80,6 +80,7 @@ def display_projects_card():
     for i, project in enumerate(projects):
         with cols[i % 3]:
             image_url="http://localhost:8000/"+project['image_path']
+            # st.write(image_url)
             render_project_card(project, image_url)
 
 def render_project_card(project, image_url):
@@ -143,8 +144,46 @@ def render_action_buttons(project, is_active):
 @st.dialog("➕ 新增工程")
 def create_new_project():
     """新增工程對話框"""
+    from PIL import Image
+    import io
+
     project_name = st.text_input("工程名稱")
-    upload_image=st.file_uploader("上傳圖片", type=["png", "jpg", "jpeg"])
+    upload_image = st.file_uploader("上傳圖片", type=["png", "jpg", "jpeg"])
+
+    # 預覽裁切後的圖片
+    cropped_img_bytes = None
+    if upload_image:
+        try:
+            img = Image.open(upload_image)
+            # 目標比例
+            target_w, target_h = 5760, 3840
+            target_ratio = target_w / target_h
+            w, h = img.size
+            img_ratio = w / h
+            if img_ratio > target_ratio:
+                # 原圖較寬，以高度為準裁切寬度
+                crop_h = h
+                crop_w = int(h * target_ratio)
+            else:
+                # 原圖較高或等寬高比，以寬度為準裁切高度
+                crop_w = w
+                crop_h = int(w / target_ratio)
+            left = (w - crop_w) // 2
+            top = (h - crop_h) // 2
+            right = left + crop_w
+            bottom = top + crop_h
+            cropped_img = img.crop((left, top, right, bottom))
+            # 裁切後resize成 5760x3840
+            cropped_img = cropped_img.resize((target_w, target_h), Image.LANCZOS)
+            st.markdown("#### 預覽（將上傳的圖片會被裁切成）：")
+            st.image(cropped_img)
+            # 轉成 bytes 以便上傳
+            img_byte_arr = io.BytesIO()
+            cropped_img.save(img_byte_arr, format=img.format or "JPEG")
+            cropped_img_bytes = img_byte_arr.getvalue()
+        except Exception as e:
+            st.warning(f"圖片預覽失敗：{e}")
+
     submit_button = st.button("建立工程")
 
     if submit_button:
@@ -155,14 +194,14 @@ def create_new_project():
             result = api.create_project(project_name)
             if result:
                 st.success(f"工程 '{project_name}' 已建立")
-                result2=api.create_permission(result['project_id'], st.session_state.user_id, "擁有者")
+                result2 = api.create_permission(result['project_id'], st.session_state.user_id, "擁有者")
                 if result2:
                     st.success(f"工程 '{project_name}' 的權限已建立")
                 else:
                     st.error("權限建立失敗")
 
-                if upload_image:
-                    files = {"file": (upload_image.name, upload_image.getvalue(), upload_image.type)}
+                if upload_image and cropped_img_bytes:
+                    files = {"file": (upload_image.name, cropped_img_bytes, upload_image.type)}
                     try:
                         result3 = api.create_project_image(result['project_id'], files)
                         if result3:

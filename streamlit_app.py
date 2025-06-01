@@ -7,7 +7,7 @@ if "user_id" not in st.session_state:
 if "active_project_id" not in st.session_state:
     st.session_state.active_project_id = 1
 
-st.set_page_config(page_title="工程缺失管理系統V1.0.0", page_icon=":material/edit_document:",layout="wide")
+st.set_page_config(page_title="工程缺失管理系統", page_icon=":material/edit_document:",layout="wide")
 st.logo("logo.jpg")
 
 users_page=st.Page("view_users.py", title="用戶清單", icon=":material/star:")

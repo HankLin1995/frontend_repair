@@ -43,7 +43,7 @@ def create_project_image(project_id: int, image) -> Dict[str, Any]:
     url = f"{BASE_URL}/projects/{project_id}/image"
 
     try:
-        response=requests.post(url,files={"file": image})
+        response=requests.post(url,files=image)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
