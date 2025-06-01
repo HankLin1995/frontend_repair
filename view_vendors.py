@@ -55,7 +55,7 @@ def edit_vendor_ui(vendor):
             except Exception as e:
                 st.error(f"更新廠商時發生錯誤: {str(e)}")
 
-st.subheader("廠商管理")
+# st.subheader("廠商管理")
 
 vendors = api.get_vendors()
 
@@ -94,8 +94,20 @@ if event.selection.rows:
     selected_row = event.selection.rows[0]
     selected_vendor = df.iloc[selected_row]
     
-    if st.button("編輯",key=f"edit_{selected_vendor['vendor_id']}"):
-        edit_vendor_ui(selected_vendor)
+    col1,col2,col3,col4=st.columns(4)
+
+    with col1:
+
+        if st.button("📝 編輯",key=f"edit_{selected_vendor['vendor_id']}",use_container_width=True):
+            edit_vendor_ui(selected_vendor)
+
+            st.rerun()
+        
+    with col2:
+        if st.button("🗑️ 刪除",key=f"delete_{selected_vendor['vendor_id']}",use_container_width=True):
+            api.delete_vendor(selected_vendor['vendor_id'])
+    
+            st.rerun()
 
 st.markdown("---")
 

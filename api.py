@@ -231,6 +231,17 @@ def get_permissions(project_id: int):
         print(f"Error fetching permissions: {e}")
         return []
 
+def get_project_by_email(user_email: str):
+    url = f"{BASE_URL}/permissions/?user_email={user_email}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching project by email: {e}")
+        return []
+
 def delete_permission(permission_id: int):
     url = f"{BASE_URL}/permissions/{permission_id}"
     
@@ -264,6 +275,59 @@ def get_users():
     except requests.exceptions.RequestException as e:
         print(f"Error fetching users: {e}")
         return []
+
+def create_user(user_name: str, user_email: str, user_role: str, phone: str = "", line_id: str = "") -> dict:
+    """
+    Create a new user
+    """
+    url = f"{BASE_URL}/users/"
+    payload = {
+        "user_name": user_name,
+        "user_email": user_email,
+        "user_role": user_role,
+        "phone": phone,
+        "line_id": line_id
+    }
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating user: {e}")
+        return {}
+
+def update_user(user_id: int, user_name: str, user_email: str, user_role: str, phone: str = "", line_id: str = "") -> dict:
+    """
+    Update an existing user
+    """
+    url = f"{BASE_URL}/users/{user_id}"
+    payload = {
+        "user_name": user_name,
+        "user_email": user_email,
+        "user_role": user_role,
+        "phone": phone,
+        "line_id": line_id
+    }
+    try:
+        response = requests.put(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating user {user_id}: {e}")
+        return {}
+
+def delete_user(user_id: int) -> bool:
+    """
+    Delete a user by ID
+    """
+    url = f"{BASE_URL}/users/{user_id}"
+    try:
+        response = requests.delete(url)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Error deleting user {user_id}: {e}")
+        return False
 
 def get_defect_categories():
     url = f"{BASE_URL}/defect-categories/"
@@ -335,3 +399,62 @@ def update_vendor(vendor_id: int, vendor_name: str, contact_person: str, phone: 
     except requests.exceptions.RequestException as e:
         print(f"Error updating vendor {vendor_id}: {e}")
         return {}
+
+def delete_vendor(vendor_id: int):
+    url = f"{BASE_URL}/vendors/{vendor_id}"
+    
+    try:
+        response = requests.delete(url)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Error deleting vendor {vendor_id}: {e}")
+        return False
+
+def create_defect_category(category_name: str, description: str) -> Dict[str, Any]:
+    """
+    Create a new defect category
+    
+    Args:
+        category_name: Name of the category
+        
+    Returns:
+        Category data including category_id, category_name, and created_at
+    """
+    url = f"{BASE_URL}/defect-categories/"
+    payload = {"category_name": category_name,"description":description}
+    
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating category: {e}")
+        return {}
+
+def update_defect_category(defect_category_id: int, category_name: str, description: str) -> dict:
+    """
+    Update an existing defect category
+    """
+    url = f"{BASE_URL}/defect-categories/{defect_category_id}"
+    payload = {"category_name": category_name,"description":description}
+    try:
+        response = requests.put(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating defect category {defect_category_id}: {e}")
+        return {}
+
+def delete_defect_category(defect_category_id: int) -> bool:
+    """
+    Delete a defect category by ID
+    """
+    url = f"{BASE_URL}/defect-categories/{defect_category_id}"
+    try:
+        response = requests.delete(url)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Error deleting defect category {defect_category_id}: {e}")
+        return False

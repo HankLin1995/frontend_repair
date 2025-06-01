@@ -65,7 +65,10 @@ def display_projects_list():
 def display_projects_card():
     """以卡片形式顯示工程列表"""
     # 從 API 獲取工程
-    projects = api.get_projects()
+    # projects = api.get_projects()
+    projects=api.get_project_by_email(st.session_state.user_id)
+
+    st.write(projects)
     
     if not projects:
         st.info("目前沒有工程，請新增工程。")
@@ -78,16 +81,18 @@ def display_projects_card():
     cols = st.columns(3)  # 每行4個卡片
     
     for i, project in enumerate(projects):
-        with cols[i % 3]:
-            image_url="http://localhost:8000/"+project['image_path']
-            # st.write(image_url)
-            render_project_card(project, image_url)
+        role=project['user_role']
 
-def render_project_card(project, image_url):
+        with cols[i % 3]:
+            project_origin=api.get_project(project['project_id'])
+            image_url="http://localhost:8000/"+project_origin['image_path']
+            # st.write(image_url)
+            render_project_card(project_origin, image_url,role)
+
+def render_project_card(project, image_url,role):
     """渲染單個工程卡片"""
     # 確定這是否為當前工程
     is_active = st.session_state.active_project_id == project['project_id']
-    
     # 創建卡片容器
     with st.container(border=True):
         # 工程圖標
@@ -106,14 +111,14 @@ def render_project_card(project, image_url):
         # 工程狀態
         st.badge("工程進行中", color="blue")
 
-        # st.markdown("**角色:**" + project['role'])
+        st.markdown(f"**角色:** {role}")
 
         st.markdown("---")
         
         # 操作按鈕
-        render_action_buttons(project, is_active)
+        render_action_buttons(project, is_active,role)
 
-def render_action_buttons(project, is_active):
+def render_action_buttons(project, is_active,role):
     """渲染工程操作按鈕"""
     btn_cols = st.columns([1, 1, 1.5])
     
