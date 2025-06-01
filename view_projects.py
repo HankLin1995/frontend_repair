@@ -72,14 +72,15 @@ def display_projects_card():
         return
     
     # 生成工程圖片
-    project_images = generate_project_images(projects)
+    # project_images = generate_project_images(projects)
     
     # 顯示工程卡片
     cols = st.columns(3)  # 每行4個卡片
     
     for i, project in enumerate(projects):
         with cols[i % 3]:
-            render_project_card(project, project_images[i])
+            image_url="http://localhost:8000/"+project['image_path']
+            render_project_card(project, image_url)
 
 def render_project_card(project, image_url):
     """渲染單個工程卡片"""
@@ -143,13 +144,13 @@ def render_action_buttons(project, is_active):
 def create_new_project():
     """新增工程對話框"""
     project_name = st.text_input("工程名稱")
+    upload_image=st.file_uploader("上傳圖片", type=["png", "jpg", "jpeg"])
     submit_button = st.button("建立工程")
-    
+
     if submit_button:
         if not project_name:
             st.warning("請輸入工程名稱")
             return
-            
         try:
             result = api.create_project(project_name)
             if result:
@@ -160,11 +161,23 @@ def create_new_project():
                 else:
                     st.error("權限建立失敗")
 
+                if upload_image:
+                    files = {"file": (upload_image.name, upload_image.getvalue(), upload_image.type)}
+                    try:
+                        result3 = api.create_project_image(result['project_id'], files)
+                        if result3:
+                            st.success(f"工程 '{project_name}' 的圖片已建立")
+                        else:
+                            st.error("圖片建立失敗")
+                    except Exception as e:
+                        st.error(f"建立圖片時發生錯誤: {str(e)}")
+
                 st.rerun()
             else:
                 st.error("API 返回失敗結果")
         except Exception as e:
             st.error(f"建立工程時發生錯誤: {str(e)}")
+
 
 @st.dialog("📝 編輯工程")
 def edit_project(project):

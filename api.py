@@ -1,5 +1,4 @@
 import requests
-import json
 from typing import Dict, List, Optional, Union, Any
 import os
 
@@ -27,6 +26,31 @@ def create_project(project_name: str) -> Dict[str, Any]:
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Error creating project: {e}")
+        return {}
+
+def create_project_image(project_id: int, image) -> Dict[str, Any]:
+    """
+    Create a new project image
+
+    Args:
+        project_id: ID of the project
+        image: Streamlit UploadedFile
+
+    Returns:
+        Image data including image_id, project_id, and image_path
+    """
+
+    url = f"{BASE_URL}/projects/{project_id}/image"
+
+    try:
+        response=requests.post(url,files={"file": image})
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating project image: {e}")
+        return {}
+    except Exception as e:
+        print(f"File error: {e}")
         return {}
 
 def get_projects(skip: int = 0, limit: int = 100) -> List[Dict[str, Any]]:
@@ -262,4 +286,52 @@ def get_vendors():
     except requests.exceptions.RequestException as e:
         print(f"Error fetching vendors: {e}")
         return []
+
+def create_vendor(vendor_name: str, contact_person: str, phone: str,email:str,line_id:str, responsibilities: str) -> Dict[str, Any]:
+    """
+    Create a new vendor
     
+    Args:
+        vendor_name: Name of the vendor
+        contact_person: Contact person of the vendor
+        phone: Phone number of the vendor
+        responsibilities: Responsibilities of the vendor
+        
+    Returns:
+        Vendor data including vendor_id, vendor_name, contact_person, phone, and responsibilities
+    """
+    url = f"{BASE_URL}/vendors/"
+    payload = {"vendor_name": vendor_name, "contact_person": contact_person, "phone": phone,"email":email,"line_id":line_id,"responsibilities":responsibilities}
+    
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating vendor: {e}")
+        return {}
+
+def update_vendor(vendor_id: int, vendor_name: str, contact_person: str, phone: str,email:str,line_id:str, responsibilities: str) -> Dict[str, Any]:
+    """
+    Update an existing vendor
+    
+    Args:
+        vendor_id: ID of the vendor to update
+        vendor_name: New name of the vendor
+        contact_person: New contact person of the vendor
+        phone: New phone number of the vendor
+        responsibilities: New responsibilities of the vendor
+        
+    Returns:
+        Updated vendor data including vendor_id, vendor_name, contact_person, phone, and responsibilities
+    """
+    url = f"{BASE_URL}/vendors/{vendor_id}"
+    payload = {"vendor_name": vendor_name, "contact_person": contact_person, "phone": phone,"email":email,"line_id":line_id,"responsibilities":responsibilities}
+    
+    try:
+        response = requests.put(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating vendor {vendor_id}: {e}")
+        return {}
