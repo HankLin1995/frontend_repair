@@ -152,3 +152,91 @@ def get_user_projects(user_id: int) -> Dict[str, Any]:
     except requests.exceptions.RequestException as e:
         print(f"Error fetching projects for user {user_id}: {e}")
         return {}
+
+def get_project_with_roles(project_id: int) -> Dict[str, Any]:
+    """
+    Get a project with roles of related entities (users)
+    
+    Args:
+        project_id: ID of the project
+        
+    Returns:
+        Project data with roles
+    """
+    url = f"{BASE_URL}/projects/{project_id}/with-roles"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching project roles {project_id}: {e}")
+        return {}
+
+def create_permission(project_id: int, user_email: str, user_role: str) -> Dict[str, Any]:
+    """
+    Create a new permission for a user on a project
+    
+    Args:
+        project_id: ID of the project
+        user_id: ID of the user
+        user_role: Role of the user (e.g., "owner", "member")
+        
+    Returns:
+        Permission data including permission_id, project_id, user_id, and role
+    """
+    url = f"{BASE_URL}/permissions/"
+    payload = {"project_id": project_id, "user_email": user_email, "user_role": user_role}
+    
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating permission: {e}")
+        return {}
+
+def get_permissions(project_id: int):
+    url = f"{BASE_URL}/permissions/?project_id={project_id}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching permissions: {e}")
+        return []
+
+def delete_permission(permission_id: int):
+    url = f"{BASE_URL}/permissions/{permission_id}"
+    
+    try:
+        response = requests.delete(url)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Error deleting permission {permission_id}: {e}")
+        return False
+
+def update_permission(permission_id: int, user_role: str):
+    url = f"{BASE_URL}/permissions/{permission_id}"
+    payload = {"user_role": user_role}
+    
+    try:
+        response = requests.put(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating permission {permission_id}: {e}")
+        return {}
+
+def get_users():
+    url = f"{BASE_URL}/users/"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching users: {e}")
+        return []
