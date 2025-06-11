@@ -1,5 +1,38 @@
 import streamlit as st
 import api
+from streamlit_extras.floating_button import floating_button
+from streamlit_avatar import avatar
+
+@st.dialog("新增底圖")
+def create_basemap():
+    project_id = st.session_state.active_project_id
+    map_name=st.text_input("底圖名稱")
+    map_file=st.file_uploader("上傳底圖", type=["png", "jpg", "jpeg"])
+    bytes_file=map_file.read()
+
+    submit_button=st.button("新增")
+    
+    if submit_button:
+        result = api.create_basemap(project_id, map_name)
+        st.write(result)
+        if result:
+            st.success("底圖新增成功")
+            #建立圖片時發生錯誤: a bytes-like object is required, not 'dict'
+            if map_file:
+                files = {"file": (map_file.name, bytes_file, map_file.type)}
+                try:
+                    result2 = api.create_basemap_image(result['base_map_id'], files)
+                    if result2:
+                        st.success("底圖圖片新增成功")
+                    else:
+                        st.error("底圖圖片新增失敗")
+                except Exception as e:
+                    st.error(f"建立圖片時發生錯誤: {str(e)}")
+        else:
+            st.error("底圖新增失敗")
+
+        st.rerun()
+
 
 @st.dialog("新增工作夥伴")
 def invite_user():
@@ -51,15 +84,25 @@ def display_user_card(users):
                 col1,col2=st.columns([1,2])
                 with col1:
                     avatar_url = f"https://i.pravatar.cc/150?u={user['user_email']}"
-                    st.markdown(
-                        f"<img src='{avatar_url}' style='border-radius:50%;width:100px;height:100px;object-fit:cover;'>",
-                        unsafe_allow_html=True
-                    )
+                    avatar(
+                            [
+                                {
+                                    "url": avatar_url,
+                                    "size": 100,
+                                    "key": "avatar1",
+                                }
+                            ]
+                        )
 
                 with col2:
                     # st.markdown("**權限ID:** "+ str(user['permission_id']))
                     st.markdown("**電子郵件:** "+ user['user_email'])
-                    st.markdown("**姓名:** "+ user['user_name'])
+
+                    if user['user_name']:
+                        st.markdown("**姓名:** "+ user['user_name'])
+                    else:
+                        st.warning("該用戶尚未登入過系統",icon="⚠️")
+
                     st.markdown("**角色:** "+ user['user_role'])
                 # st.markdown("---")
 
@@ -76,7 +119,23 @@ def display_user_card(users):
 
 
 def display_project_basemaps():
-    pass
+    basemaps = api.get_basemaps(st.session_state.active_project_id)
+    # st.write(basemaps)
+
+    if not basemaps:
+        st.info("目前沒有工程底圖，請新增工程底圖。")
+        return
+    else:
+        cols = st.columns(3)  # 每行4個卡片
+        
+        for i, basemap in enumerate(basemaps):
+            with cols[i % 3]:
+                with st.container(border=True):
+                    st.image("http://localhost:8000/"+basemap['file_path'])
+                    st.caption("#### " + basemap['map_name'])
+        
+    if floating_button(":material/add: 新增工程底圖",key="add_basemap"):
+        create_basemap()
     
 def display_project_defects():
     pass
@@ -85,7 +144,7 @@ def display_project_members():
 
     # with st.container(border=True):
 
-    st.subheader("👥 工作夥伴")
+    # st.subheader("👥 工作夥伴")
 
     roles = api.get_permissions(st.session_state.active_project_id)
     # roles=roles_data['permissions']
@@ -94,7 +153,7 @@ def display_project_members():
 
     st.markdown("---")
 
-    if st.button("新增工作夥伴"):
+    if floating_button(":material/add: 新增工作夥伴",key="add_partner"):
         invite_user()
 
     if st.session_state.active_project_id is None:
@@ -104,12 +163,12 @@ def display_project_members():
 project = api.get_project(st.session_state.active_project_id)
 
 if project:
-    st.subheader("工程/ "+project['project_name']) 
+    st.caption("工程/ "+project['project_name']) 
 else:
     st.warning("請先至工程列表選擇當前工程!")
     st.stop()
 
-tabs=st.tabs(["工作夥伴","工程底圖"])
+tabs=st.tabs(["👥工作夥伴","🗺️工程底圖"])
 
 with tabs[0]:
     display_project_members()

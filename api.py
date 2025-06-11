@@ -197,6 +197,8 @@ def get_project_with_roles(project_id: int) -> Dict[str, Any]:
         print(f"Error fetching project roles {project_id}: {e}")
         return {}
 
+#-----權限------
+
 def create_permission(project_id: int, user_email: str, user_role: str) -> Dict[str, Any]:
     """
     Create a new permission for a user on a project
@@ -265,6 +267,8 @@ def update_permission(permission_id: int, user_role: str):
         print(f"Error updating permission {permission_id}: {e}")
         return {}
 
+#-------用戶--------
+
 def get_users():
     url = f"{BASE_URL}/users/"
     
@@ -329,17 +333,7 @@ def delete_user(user_id: int) -> bool:
         print(f"Error deleting user {user_id}: {e}")
         return False
 
-def get_defect_categories():
-    url = f"{BASE_URL}/defect-categories/"
-    
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching defect categories: {e}")
-        return []
-    
+#-------廠商--------
 def get_vendors():
     url = f"{BASE_URL}/vendors/"
     
@@ -411,6 +405,21 @@ def delete_vendor(vendor_id: int):
         print(f"Error deleting vendor {vendor_id}: {e}")
         return False
 
+
+#--------取得缺失分類---------
+
+def get_defect_categories():
+    url = f"{BASE_URL}/defect-categories/"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching defect categories: {e}")
+        return []
+    
+
 def create_defect_category(category_name: str, description: str) -> Dict[str, Any]:
     """
     Create a new defect category
@@ -458,3 +467,54 @@ def delete_defect_category(defect_category_id: int) -> bool:
     except requests.exceptions.RequestException as e:
         print(f"Error deleting defect category {defect_category_id}: {e}")
         return False
+
+def create_basemap(project_id: int, map_name: str, file_path: str="file_path") -> dict:
+    """
+    Create a new basemap
+    """
+    url = f"{BASE_URL}/base-maps/"
+    payload = {"project_id": project_id, "map_name": map_name, "file_path": file_path}
+    
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating basemap: {e}")
+        return {}
+
+def get_basemaps(project_id: int):
+    url = f"{BASE_URL}/base-maps/?project_id={project_id}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching basemaps: {e}")
+        return []
+
+def create_basemap_image(basemap_id: int, files) -> Dict[str, Any]:
+    """
+    Create a new basemap image
+
+    Args:
+        basemap_id: ID of the basemap
+        files: dict, e.g. {"image": (filename, bytes, content_type)}
+
+    Returns:
+        Image data including image_id, project_id, and image_path
+    """
+
+    url = f"{BASE_URL}/base-maps/{basemap_id}/image"
+
+    try:
+        response = requests.post(url, files=files)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating basemap image: {e}")
+        return {}
+    except Exception as e:
+        print(f"File error: {e}")
+        return {}

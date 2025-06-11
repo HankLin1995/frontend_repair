@@ -3,3 +3,4 @@ pandas
 requests
 pillow
 streamlit-carousel
+streamlit_extras

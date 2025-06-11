@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import api
 from datetime import datetime
+from streamlit_extras.floating_button import floating_button
 
 # ============= 工具函數 =============
 
@@ -68,7 +69,7 @@ def display_projects_card():
     # projects = api.get_projects()
     projects=api.get_project_by_email(st.session_state.user_id)
 
-    st.write(projects)
+    # st.write(projects)
     
     if not projects:
         st.info("目前沒有工程，請新增工程。")
@@ -107,13 +108,13 @@ def render_project_card(project, image_url,role):
         # 工程元數據
         created_at = format_date(project.get('created_at', 'N/A'))
         st.caption(f"建立時間: {created_at}")
-        st.progress(30/100,"目前進度(30%)")
+        # st.progress(30/100,"目前進度(30%)")
         # 工程狀態
-        st.badge("工程進行中", color="blue")
+        # st.badge("工程進行中", color="blue")
 
-        st.markdown(f"**角色:** {role}")
+        st.markdown(f"**您的角色:** {role}")
 
-        st.markdown("---")
+        # st.markdown("---")
         
         # 操作按鈕
         render_action_buttons(project, is_active,role)
@@ -146,7 +147,7 @@ def render_action_buttons(project, is_active,role):
 
 # ============= 工程操作對話框 =============
 
-@st.dialog("➕ 新增工程")
+@st.dialog("新增工程")
 def create_new_project():
     """新增工程對話框"""
     from PIL import Image
@@ -249,21 +250,21 @@ def edit_project(project):
 @st.dialog("🗑️ 刪除工程")
 def delete_project(project):
     """刪除工程對話框"""
+
+# with st.form("delete_project_form"):
+    st.write(f"確定要刪除工程 '{project['project_name']}' 嗎？")
+    submit_button = st.button("確認刪除")
     
-    with st.form("delete_project_form"):
-        st.write(f"確定要刪除工程 '{project['project_name']}' 嗎？")
-        submit_button = st.form_submit_button("確認刪除")
-        
-        if submit_button:
-            try:
-                result = api.delete_project(project['project_id'])
-                if result:
-                    st.success(f"工程 '{project['project_name']}' 已刪除")
-                    st.rerun()
-                else:
-                    st.error("API 返回失敗結果")
-            except Exception as e:
-                st.error(f"刪除工程時發生錯誤: {str(e)}")
+    if submit_button:
+        try:
+            result = api.delete_project(project['project_id'])
+            if result:
+                st.success(f"工程 '{project['project_name']}' 已刪除")
+                st.rerun()
+            else:
+                st.error("API 返回失敗結果")
+        except Exception as e:
+            st.error(f"刪除工程時發生錯誤: {str(e)}")
 
 # ============= 主頁面渲染 =============
 
@@ -284,8 +285,9 @@ def main():
     #     display_projects_list()
     
     # 新增工程按鈕
-    st.divider()
-    if st.button("新增工程", type="primary"):
+    # st.divider()
+    if floating_button(":material/add: 新增工程",type="secondary"):
+    # if st.button("新增工程", type="primary"):
         create_new_project()
 
 # 執行主函數
