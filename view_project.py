@@ -3,6 +3,7 @@ import api
 from streamlit_extras.floating_button import floating_button
 from streamlit_avatar import avatar
 from PIL import Image
+import pandas as pd
 
 def crop_and_resize_image(img, target_w=5760, target_h=3840):
     """
@@ -224,6 +225,100 @@ def display_project_members():
         st.warning("請先至工程列表選擇當前工程!")
         st.stop()
 
+@st.dialog("編輯分類")
+def edit_category_ui(category_id,category_name):
+    # with st.form("edit_category_form"):
+    category_name=st.text_input("分類名稱",value=category_name)
+    description=st.text_area("描述",value="無")
+    submit_button=st.button("更新")
+    if submit_button:
+        result = api.update_defect_category(category_id, category_name,description)
+        if result:
+            st.success("分類已更新")
+            st.rerun()
+        else:
+            st.error("分類更新失敗")
+
+def display_project_categories():
+    categories = api.get_defect_categories()
+    df=pd.DataFrame(categories)
+    
+    selected=st.pills("分類標籤",df['category_name'].tolist())
+    if selected:
+        selected_id=df[df['category_name']==selected]['defect_category_id'].values[0]
+        if floating_button("編輯分類",key="edit_category"):
+            edit_category_ui(selected_id,selected)
+
+@st.dialog("新增廠商")
+def create_vendor_ui():
+    vendor_name=st.text_input("廠商名稱")
+    contact_person=st.text_input("聯絡人")
+    phone=st.text_input("電話")
+    email=st.text_input("電子郵件")
+    line_id=st.text_input("LINE ID")
+    responsibilities=st.text_input("負責範圍")
+    submit_button=st.button("新增")
+    if submit_button:
+        result = api.create_vendor(st.session_state.active_project_id,vendor_name, contact_person, phone, email, line_id, responsibilities)
+        if result:
+            st.success("廠商已新增")
+            st.rerun()
+        else:
+            st.error("廠商新增失敗")
+
+@st.dialog("編輯廠商")
+def edit_vendor_ui(vendor):
+    vendor_name=st.text_input("廠商名稱",value=vendor['vendor_name'])
+    contact_person=st.text_input("聯絡人",value=vendor['contact_person'])
+    phone=st.text_input("電話",value=vendor['phone'])
+    email=st.text_input("電子郵件",value=vendor['email'])
+    line_id=st.text_input("LINE ID",value=vendor['line_id'])
+    responsibilities=st.text_input("負責範圍",value=vendor['responsibilities'])
+    submit_button=st.button("更新")
+    if submit_button:
+        result = api.update_vendor(vendor['vendor_id'], vendor_name, contact_person, phone, email, line_id, responsibilities)
+        if result:
+            st.success("廠商已更新")
+            st.rerun()
+        else:
+            st.error("廠商更新失敗")
+def display_vendor():
+    vendors = api.get_vendors()
+    df=pd.DataFrame(vendors)
+
+    event=st.dataframe(df,hide_index=True,column_config={
+        "vendor_id":None,
+        "vendor_name":"廠商名稱",
+        "contact_person":"聯絡人",
+        "phone":"電話",
+        "email":"電子郵件",
+        "line_id":"LINE ID",
+        "responsibilities":"負責範圍",
+        "project_id":None
+    },
+    on_select="rerun",
+    selection_mode="single-row")
+
+    if event.selection.rows:
+        selected_row = event.selection.rows[0]
+        selected_vendor = df.iloc[selected_row]
+        
+        col1,col2=st.columns(2)
+
+        with col1:
+
+            if st.button("📝 編輯",key=f"edit_{selected_vendor['vendor_id']}",use_container_width=True):
+                edit_vendor_ui(selected_vendor)
+            
+        with col2:
+            if st.button("🗑️ 刪除",key=f"delete_{selected_vendor['vendor_id']}",use_container_width=True):
+                api.delete_vendor(selected_vendor['vendor_id'])
+        
+                st.rerun()
+
+    if floating_button(":material/add: 新增廠商",key="add_vendor"):
+        create_vendor_ui()
+
 project = api.get_project(st.session_state.active_project_id)
 
 if project:
@@ -244,8 +339,6 @@ with tabs[0]:
 with tabs[1]:
     display_project_basemaps()
 with tabs[2]:
-    # display_project_defects()
-    pass
+    display_project_categories()
 with tabs[3]:
-    # display_project_defects()
-    pass
+    display_vendor()
