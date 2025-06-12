@@ -8,6 +8,8 @@ from datetime import datetime
 from streamlit_image_coordinates import streamlit_image_coordinates
 from streamlit_extras.floating_button import floating_button
 from streamlit_extras.add_vertical_space import add_vertical_space
+import streamlit_antd_components as sac
+import time
 
 default_session_state = {
     "basemap_id": None,
@@ -37,7 +39,7 @@ def create_project_category():
                 st.warning("請輸入分類名稱")
                 return
             try:
-                result = api.create_defect_category(category_name,description)
+                result = api.create_defect_category(st.session_state.active_project_id,category_name,description)
                 if result:
                     st.success(f"分類 '{category_name}' 已新增")
                     st.rerun()
@@ -63,7 +65,7 @@ def create_vendor():
                 return
             
             try:
-                result = api.create_vendor(vendor_name, contact_person, phone, email , line_id , responsibilities)
+                result = api.create_vendor(st.session_state.active_project_id,vendor_name, contact_person, phone, email , line_id , responsibilities)
                 if result:
                     st.success(f"廠商 '{vendor_name}' 已新增")
                     st.rerun()
@@ -176,24 +178,38 @@ def display_defect_add(category_options,vendor_options):
     st.session_state.assigned_vendor=assigned_vendor
     st.session_state.expected_date=expected_date
 
-project = api.get_project(st.session_state.active_project_id)
+def display_defect_result():
+    ### 標記、描述、照片
 
-st.caption("工程 / "+project['project_name']+" / 新增缺失")
-# st.markdown("---")
+    col1,col2=st.columns([1,2])
 
-# --- Fetch defect categories and vendors ---
-categories = api.get_defect_categories()
-vendors = api.get_vendors()
+    with col2:
+        st.markdown("#### 🗺️ 底圖標記")
+        basemap = api.get_basemap(st.session_state.basemap_id)
+        # show image with red circle
+        image_url = "http://localhost:8000/" + basemap['file_path']
 
-category_options = {str(c.get('name', c.get('category_name', '無分類'))): c['defect_category_id'] for c in categories} if categories else {}
-vendor_options = {str(v.get('vendor_name', '無廠商')): v['vendor_id'] for v in vendors} if vendors else {}
+        # 使用共用函式取得已標記圖片
+        x = st.session_state.basemap_mark_X
+        y = st.session_state.basemap_mark_Y
+        img = draw_basemap_with_marker(image_url, x, y, radius=15)
+        st.image(img, caption=f"**座標：** X = `{st.session_state.basemap_mark_X}`, Y = `{st.session_state.basemap_mark_Y}`")
 
-# display_defect_add(category_options,vendor_options)
+    with col1:
+        st.markdown("#### 📝 缺失描述")
+        with st.container(border=True):
+            st.markdown(f"**🔢 前置缺失編號：** {st.session_state.before_number or '—'}")
+            st.markdown(f"**📝 缺失描述：** {st.session_state.defect_description or '—'}")
+            st.markdown(f"**🏷️ 缺失分類：** {st.session_state.defect_category or '—'}")
+            st.markdown(f"**🏭 指派廠商：** {st.session_state.assigned_vendor or '—'}")
+            st.markdown(f"**📅 預計改善日期：** {st.session_state.expected_date.strftime('%Y-%m-%d') if st.session_state.expected_date else '—'}")
 
-basemaps=api.get_basemaps(st.session_state.active_project_id)
+    st.markdown("#### 📷 缺失照片")
+    img_cols = st.columns(3)
+    for i, file in enumerate(st.session_state.defect_images):
+        with img_cols[i % 3]:
+            st.image(file)
 
-import streamlit_antd_components as sac
-from datetime import datetime
 
 def main(basemaps):
     
@@ -224,25 +240,6 @@ def main(basemaps):
         
         if current_step == 0:
             display_basemap_add(basemaps)
-            # st.subheader('底圖標示')
-
-            # options = ["請選擇"] + [b['map_name'] for b in basemaps]
-            # selected_base_map = st.selectbox("選擇底圖", options=options)
-            # selected_base_map_id=next((b['base_map_id'] for b in basemaps if b['map_name'] == selected_base_map), None)
-
-            # if selected_base_map != "請選擇":
-            #     selected_map_data = next((b for b in basemaps if b['map_name'] == selected_base_map), None)
-            #     if selected_map_data:
-            #         image_path="http://localhost:8000/"+selected_map_data['file_path']
-            #         value = streamlit_image_coordinates(image_path)
-            #         if value:
-            #             st.write("X="+str(value['x'])+", Y="+str(value['y']))
-            #             # st.write(value)
-            #             if floating_button(":material/add: 新增標記",key="add_mark",type="primary"):
-            #                 st.toast("新增標記成功")
-            #                 st.session_state.basemap_mark_X = value['x']
-            #                 st.session_state.basemap_mark_Y = value['y']
-            #                 st.session_state.basemap_id = selected_base_map_id
 
         elif current_step == 1:
             # st.subheader('缺失描述')
@@ -262,36 +259,7 @@ def main(basemaps):
             
         elif current_step == 3:
 
-            ### 標記、描述、照片
-            with st.container(border=True):
-                st.markdown("#### 🗺️ 底圖標記")
-                basemap = api.get_basemap(st.session_state.basemap_id)
-                # show image with red circle
-                image_url = "http://localhost:8000/" + basemap['file_path']
-
-                # 使用共用函式取得已標記圖片
-                x = st.session_state.basemap_mark_X
-                y = st.session_state.basemap_mark_Y
-                img = draw_basemap_with_marker(image_url, x, y, radius=15)
-                st.image(img, caption=f"**座標：** X = `{st.session_state.basemap_mark_X}`, Y = `{st.session_state.basemap_mark_Y}`")
-
-            with st.container(border=True):
-                st.markdown("#### 📝 缺失描述")
-                left, right = st.columns(2)
-                with left:
-                    st.markdown(f"**前置缺失編號：** {st.session_state.before_number or '—'}")
-                    st.markdown(f"**缺失描述：** {st.session_state.defect_description or '—'}")
-                with right:
-                    st.markdown(f"**缺失分類：** {st.session_state.defect_category or '—'}")
-                    st.markdown(f"**指派廠商：** {st.session_state.assigned_vendor or '—'}")
-                    st.markdown(f"**預計改善日期：** {st.session_state.expected_date.strftime('%Y-%m-%d') if st.session_state.expected_date else '—'}")
-
-            with st.container(border=True):
-                st.markdown("#### 📷 缺失照片")
-                img_cols = st.columns(3)
-                for i, file in enumerate(st.session_state.defect_images):
-                    with img_cols[i % 3]:
-                        st.image(file)
+            display_defect_result()
 
         # 表單按鈕
         col1, col2 = st.columns(2)
@@ -309,10 +277,26 @@ def main(basemaps):
             elif st.session_state.current_step == 3:
                 submit_button = st.button('提交表單', use_container_width=True, type='primary')
                 if submit_button:
-                    st.success('表單提交成功！')
-                    st.balloons()
+
+                    st.toast('表單提交成功！', icon="✅")
+                    time.sleep(2)
                     # 清空表單數據
                     st.session_state.current_step = 0
                     st.rerun()
+
+#========MAIN UI========
+
+project = api.get_project(st.session_state.active_project_id)
+
+st.caption("工程 / "+project['project_name']+" / 缺失表單")
+
+# --- Fetch defect categories and vendors ---
+categories = api.get_defect_categories()
+vendors = api.get_vendors()
+
+category_options = {str(c.get('name', c.get('category_name', '無分類'))): c['defect_category_id'] for c in categories} if categories else {}
+vendor_options = {str(v.get('vendor_name', '無廠商')): v['vendor_id'] for v in vendors} if vendors else {}
+
+basemaps=api.get_basemaps(st.session_state.active_project_id)
 
 main(basemaps)

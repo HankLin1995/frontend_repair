@@ -345,11 +345,12 @@ def get_vendors():
         print(f"Error fetching vendors: {e}")
         return []
 
-def create_vendor(vendor_name: str, contact_person: str, phone: str,email:str,line_id:str, responsibilities: str) -> Dict[str, Any]:
+def create_vendor(project_id: int,vendor_name: str, contact_person: str, phone: str,email:str,line_id:str, responsibilities: str) -> Dict[str, Any]:
     """
     Create a new vendor
     
     Args:
+        project_id: ID of the project
         vendor_name: Name of the vendor
         contact_person: Contact person of the vendor
         phone: Phone number of the vendor
@@ -359,7 +360,7 @@ def create_vendor(vendor_name: str, contact_person: str, phone: str,email:str,li
         Vendor data including vendor_id, vendor_name, contact_person, phone, and responsibilities
     """
     url = f"{BASE_URL}/vendors/"
-    payload = {"vendor_name": vendor_name, "contact_person": contact_person, "phone": phone,"email":email,"line_id":line_id,"responsibilities":responsibilities}
+    payload = {"project_id": project_id,"vendor_name": vendor_name, "contact_person": contact_person, "phone": phone,"email":email,"line_id":line_id,"responsibilities":responsibilities}
     
     try:
         response = requests.post(url, json=payload)
@@ -420,18 +421,19 @@ def get_defect_categories():
         return []
     
 
-def create_defect_category(category_name: str, description: str) -> Dict[str, Any]:
+def create_defect_category(project_id: int, category_name: str, description: str) -> Dict[str, Any]:
     """
     Create a new defect category
     
     Args:
+        project_id: ID of the project
         category_name: Name of the category
         
     Returns:
         Category data including category_id, category_name, and created_at
     """
     url = f"{BASE_URL}/defect-categories/"
-    payload = {"category_name": category_name,"description":description}
+    payload = {"project_id": project_id,"category_name": category_name,"description":description}
     
     try:
         response = requests.post(url, json=payload)

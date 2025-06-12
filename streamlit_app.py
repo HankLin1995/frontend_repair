@@ -14,9 +14,9 @@ users_page = st.Page("view_users.py", title="用戶清單", icon=":material/grou
 user_page = st.Page("view_user.py", title="用戶詳情", icon=":material/person:")  # 個別用戶 => person
 projects_page = st.Page("view_projects.py", title="工程列表", icon=":material/work:")  # 專案清單 => work
 project_page = st.Page("view_project.py", title="工程詳情", icon=":material/folder_open:")  # 詳情或內容 => folder_open
-project_partner_page = st.Page("view_project_partner.py", title="工作夥伴", icon=":material/group_work:")  # 協作 => group_work
-defect_page = st.Page("view_defects.py", title="缺失清單", icon=":material/bug_report:")  # 缺失 => bug_report
-defect_add_page = st.Page("view_defect_add.py", title="缺失詳情", icon=":material/assignment:")  # 缺失詳情/新增 => assignment
+# project_partner_page = st.Page("view_project_partner.py", title="工作夥伴", icon=":material/group_work:")  # 協作 => group_work
+defect_page = st.Page("view_defects.py", title="缺失列表", icon=":material/bug_report:")  # 缺失 => bug_report
+defect_add_page = st.Page("view_defect_add.py", title="缺失表單", icon=":material/assignment:")  # 缺失詳情/新增 => assignment
 dashboard_page = st.Page("view_dashboard.py", title="儀錶板", icon=":material/dashboard:")  # 儀錶板 => dashboard（保留原來的）
 
 
