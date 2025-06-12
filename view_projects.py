@@ -3,6 +3,7 @@ import pandas as pd
 import api
 from datetime import datetime
 from streamlit_extras.floating_button import floating_button
+from PIL import Image
 
 # ============= 工具函數 =============
 
@@ -15,6 +16,33 @@ def format_date(date_str):
         return datetime.fromisoformat(date_str).strftime('%Y-%m-%d')
     except ValueError:
         return date_str
+
+def crop_and_resize_image(img, target_w=5760, target_h=3840):
+    """
+    將圖片裁切為特定比例，並 resize 成指定大小
+    """
+    target_ratio = target_w / target_h
+    w, h = img.size
+    img_ratio = w / h
+
+    if img_ratio > target_ratio:
+        # 原圖較寬，以高度為準裁切寬度
+        crop_h = h
+        crop_w = int(h * target_ratio)
+    else:
+        # 原圖較高或等寬高比，以寬度為準裁切高度
+        crop_w = w
+        crop_h = int(w / target_ratio)
+
+    left = (w - crop_w) // 2
+    top = (h - crop_h) // 2
+    right = left + crop_w
+    bottom = top + crop_h
+
+    cropped_img = img.crop((left, top, right, bottom))
+    resized_img = cropped_img.resize((target_w, target_h), Image.LANCZOS)
+    return resized_img
+
 
 def generate_project_images(projects):
     """為每個工程生成唯一的隨機圖片"""
@@ -160,33 +188,38 @@ def create_new_project():
     cropped_img_bytes = None
     if upload_image:
         try:
-            img = Image.open(upload_image)
-            # 目標比例
-            target_w, target_h = 5760, 3840
-            target_ratio = target_w / target_h
-            w, h = img.size
-            img_ratio = w / h
-            if img_ratio > target_ratio:
-                # 原圖較寬，以高度為準裁切寬度
-                crop_h = h
-                crop_w = int(h * target_ratio)
-            else:
-                # 原圖較高或等寬高比，以寬度為準裁切高度
-                crop_w = w
-                crop_h = int(w / target_ratio)
-            left = (w - crop_w) // 2
-            top = (h - crop_h) // 2
-            right = left + crop_w
-            bottom = top + crop_h
-            cropped_img = img.crop((left, top, right, bottom))
-            # 裁切後resize成 5760x3840
-            cropped_img = cropped_img.resize((target_w, target_h), Image.LANCZOS)
-            st.markdown("#### 預覽（將上傳的圖片會被裁切成）：")
-            st.image(cropped_img)
-            # 轉成 bytes 以便上傳
+            img = crop_and_resize_image(Image.open(upload_image))
+            st.image(img)
             img_byte_arr = io.BytesIO()
-            cropped_img.save(img_byte_arr, format=img.format or "JPEG")
+            img.save(img_byte_arr, format=img.format or "JPEG")
             cropped_img_bytes = img_byte_arr.getvalue()
+            # img = Image.open(upload_image)
+            # # 目標比例
+            # target_w, target_h = 5760, 3840
+            # target_ratio = target_w / target_h
+            # w, h = img.size
+            # img_ratio = w / h
+            # if img_ratio > target_ratio:
+            #     # 原圖較寬，以高度為準裁切寬度
+            #     crop_h = h
+            #     crop_w = int(h * target_ratio)
+            # else:
+            #     # 原圖較高或等寬高比，以寬度為準裁切高度
+            #     crop_w = w
+            #     crop_h = int(w / target_ratio)
+            # left = (w - crop_w) // 2
+            # top = (h - crop_h) // 2
+            # right = left + crop_w
+            # bottom = top + crop_h
+            # cropped_img = img.crop((left, top, right, bottom))
+            # # 裁切後resize成 5760x3840
+            # cropped_img = cropped_img.resize((target_w, target_h), Image.LANCZOS)
+            # st.markdown("#### 預覽（將上傳的圖片會被裁切成）：")
+            # st.image(cropped_img)
+            # # 轉成 bytes 以便上傳
+            # img_byte_arr = io.BytesIO()
+            # cropped_img.save(img_byte_arr, format=img.format or "JPEG")
+            # cropped_img_bytes = img_byte_arr.getvalue()
         except Exception as e:
             st.warning(f"圖片預覽失敗：{e}")
 

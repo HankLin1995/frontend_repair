@@ -483,6 +483,17 @@ def create_basemap(project_id: int, map_name: str, file_path: str="file_path") -
         print(f"Error creating basemap: {e}")
         return {}
 
+def get_basemap(basemap_id: int):
+    url = f"{BASE_URL}/base-maps/{basemap_id}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching basemap: {e}")
+        return []
+
 def get_basemaps(project_id: int):
     url = f"{BASE_URL}/base-maps/?project_id={project_id}"
     
@@ -518,3 +529,28 @@ def create_basemap_image(basemap_id: int, files) -> Dict[str, Any]:
     except Exception as e:
         print(f"File error: {e}")
         return {}
+
+
+def update_basemap(basemap_id: int, map_name: str) -> Dict[str, Any]:
+    url = f"{BASE_URL}/base-maps/{basemap_id}"
+    payload = {"map_name": map_name}
+    
+    try:
+        response = requests.put(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating basemap {basemap_id}: {e}")
+        return {}
+
+def delete_basemap(basemap_id: int) -> bool:
+    url = f"{BASE_URL}/base-maps/{basemap_id}"
+    
+    try:
+        response = requests.delete(url)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Error deleting basemap {basemap_id}: {e}")
+        return False
+        

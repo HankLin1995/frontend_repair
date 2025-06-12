@@ -55,6 +55,10 @@ users = api.get_users()
 
 df = pd.DataFrame(users)
 
+if df.empty:
+    st.info("目前尚無用戶資料，請新增用戶。")
+    st.stop()
+
 #加入 http://localhost:8000
 df['avatar_path'] = df['avatar_path'].apply(lambda x: "http://localhost:8000/"+x if x else "")
 

@@ -1,6 +1,31 @@
 import streamlit as st
 import api
+from PIL import Image, ImageDraw
+import io
+import requests
+from streamlit_antd_components import steps
 from datetime import datetime
+from streamlit_image_coordinates import streamlit_image_coordinates
+from streamlit_extras.floating_button import floating_button
+from streamlit_extras.add_vertical_space import add_vertical_space
+
+default_session_state = {
+    "basemap_id": None,
+    "basemap_mark_X": None,
+    "basemap_mark_Y": None,
+    "before_number": None,
+    "defect_description": None,
+    "defect_category": None,
+    "assigned_vendor": None,
+    "expected_date": None,
+    "defect_images": [],
+}
+
+for key, value in default_session_state.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+# st.sidebar.json(st.session_state)
 
 @st.dialog("新增缺失分類")
 def create_project_category():
@@ -48,10 +73,113 @@ def create_vendor():
                 st.error(f"新增廠商時發生錯誤: {str(e)}")
 
 
+def get_selectbox_index(session_value, options_list, options_dict):
+    if session_value in options_list:
+        return options_list.index(session_value)
+    else:
+        current_id = str(session_value)
+        current_name = None
+        for k, v in options_dict.items():
+            if str(v) == current_id:
+                current_name = k
+                break
+        if current_name and current_name in options_list:
+            return options_list.index(current_name)
+    return 0
+
+def draw_basemap_with_marker(image_url, x, y, radius=15):
+    """
+    下載底圖並在 (x, y) 畫紅圈，回傳 PIL Image
+    """
+    resp = requests.get(image_url)
+    img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+    if x is not None and y is not None:
+        draw = ImageDraw.Draw(img)
+        draw.ellipse((x - radius, y - radius, x + radius, y + radius), outline="red", width=4)
+    return img
+
+def display_basemap_add(basemaps):
+    # 建立名稱對 id 的 dict
+    basemap_name_to_id = {b['map_name']: b['base_map_id'] for b in basemaps}
+    options = ["請選擇"] + list(basemap_name_to_id.keys())
+    # 用 get_selectbox_index 取得 index，session_state.basemap_id 為 id
+    index = get_selectbox_index(st.session_state.basemap_id, options, basemap_name_to_id)
+    selected_base_map = st.selectbox("選擇底圖", options=options, index=index)
+    selected_base_map_id = basemap_name_to_id.get(selected_base_map)
+    if selected_base_map != "請選擇":
+        selected_map_data = next((b for b in basemaps if b['map_name'] == selected_base_map), None)
+        if selected_map_data:
+            image_url = "http://localhost:8000/" + selected_map_data['file_path']
+
+            # 使用共用函式取得已標記圖片
+            x = st.session_state.basemap_mark_X
+            y = st.session_state.basemap_mark_Y
+            img = draw_basemap_with_marker(image_url, x, y, radius=15)
+            value = streamlit_image_coordinates(img)
+            if value:
+                st.toast(f"標示位置: X={value['x']}, Y={value['y']}", icon="📍")
+                st.session_state.basemap_mark_X = value['x']
+                st.session_state.basemap_mark_Y = value['y']
+                st.session_state.basemap_id = selected_base_map_id
+                st.rerun()
+
+def display_defect_add(category_options,vendor_options):
+
+    st.markdown("#### 基本資料")
+
+    if st.session_state.before_number:
+        before_number=st.text_input("前置缺失編號",value=st.session_state.before_number)
+        defect_description = st.text_area("缺失描述",value=st.session_state.defect_description)
+    else:
+        before_number=st.text_input("前置缺失編號")
+        defect_description = st.text_area("缺失描述")
+
+    col3, col4 = st.columns([2, 1])
+
+    # 準備 options list
+    category_options_list = ["(無)" if not category_options else "請選擇"] + list(category_options.keys())
+    vendor_options_list = ["(無)" if not vendor_options else "請選擇"] + list(vendor_options.keys())
+
+    with col3:
+        if st.session_state.defect_category:
+            category_index = get_selectbox_index(st.session_state.defect_category, category_options_list, category_options)
+            defect_category = st.selectbox("缺失分類", options=category_options_list, index=category_index)
+        else:
+            defect_category = st.selectbox("缺失分類", options=category_options_list)
+    with col4:
+        add_vertical_space(2)
+        if st.button("找不到分類?"):
+            create_project_category()
+
+    col5, col6 = st.columns([2, 1])
+
+    with col5:
+        if st.session_state.assigned_vendor:
+            vendor_index = get_selectbox_index(st.session_state.assigned_vendor, vendor_options_list, vendor_options)
+            assigned_vendor = st.selectbox("指派廠商", options=vendor_options_list, index=vendor_index)
+        else:
+            assigned_vendor = st.selectbox("指派廠商", options=vendor_options_list)
+    with col6:
+        add_vertical_space(2)
+        if st.button("找不到廠商?"):
+            create_vendor()
+
+
+    if st.session_state.expected_date:
+        expected_date=st.date_input("預計改善日期",value=st.session_state.expected_date)
+    else:
+        expected_date=st.date_input("預計改善日期")
+
+    st.session_state.before_number=before_number
+    st.session_state.defect_description=defect_description
+    st.session_state.defect_category=defect_category
+    st.session_state.assigned_vendor=assigned_vendor
+    st.session_state.expected_date=expected_date
+
 project = api.get_project(st.session_state.active_project_id)
 
-st.markdown("#### 工程 / "+project['project_name']+" / 新增缺失")
-st.markdown("---")
+st.caption("工程 / "+project['project_name']+" / 新增缺失")
+# st.markdown("---")
 
 # --- Fetch defect categories and vendors ---
 categories = api.get_defect_categories()
@@ -60,124 +188,131 @@ vendors = api.get_vendors()
 category_options = {str(c.get('name', c.get('category_name', '無分類'))): c['defect_category_id'] for c in categories} if categories else {}
 vendor_options = {str(v.get('vendor_name', '無廠商')): v['vendor_id'] for v in vendors} if vendors else {}
 
-col1,col2=st.columns([1,1])
+# display_defect_add(category_options,vendor_options)
 
-with col1:
+basemaps=api.get_basemaps(st.session_state.active_project_id)
 
-    with st.container(border=True):
+import streamlit_antd_components as sac
+from datetime import datetime
 
-        st.markdown("#### 基本資料")
-
-        defect_description = st.text_area("缺失描述", max_chars=300)
-
-        col3,col4=st.columns([2,1])
-
-        with col3:
-            defect_category = st.selectbox("缺失分類", options=["(無)" if not category_options else "請選擇"] + list(category_options.keys()))
-        with col4:
-            if st.button("找不到分類?"):
-                create_project_category()
-
-        col5,col6=st.columns([2,1])
-
-        with col5:
-            assigned_vendor = st.selectbox("指派廠商", options=["(無)" if not vendor_options else "請選擇"] + list(vendor_options.keys()))
-        with col6:
-            if st.button("找不到廠商?"):
-                create_vendor()
-
-        expected_date=st.date_input("預計改善日期")
-
-        files= st.file_uploader("上傳缺失照片", type=["png", "jpg", "jpeg"],accept_multiple_files=True)
-
-        st.markdown("---")
-
-        if st.button("送出缺失",type="primary"):
-            # Prepare payload
-            payload = {
-                "project_id": st.session_state.active_project_id,
-                "submitted_id": st.session_state.user_id,
-                "defect_description": defect_description,
-            }
-            if defect_category not in ["(無)", "請選擇"]:
-                payload["defect_category_id"] = category_options[defect_category]
-            if assigned_vendor not in ["(無)", "請選擇"]:
-                payload["assigned_vendor_id"] = vendor_options[assigned_vendor]
-            payload["expected_date"] = expected_date.strftime("%Y-%m-%d")
-            # Call API
-            result = api.create_defect(**payload)
-            if result and not result.get("error"):
-                st.success("缺失已成功新增！")
-                st.balloons()
-            else:
-                st.error(f"新增失敗: {result.get('error', '未知錯誤')}")
-
-with col2:
-
-    with st.container(border=True):
-
-        st.markdown("#### 圖片預覽")
-
-        cols = st.columns(2)
-        
-        for i, file in enumerate(files):
-            with cols[i % 2]:
-                # with st.container(border=True):
-                st.image(file)
-        
-
-        # from streamlit_carousel import carousel
-    # from PIL import Image
-    # import io
-
-    # preview_items = []
-    # if files:
-    #     for file in files:
-    #         try:
-    #             img = Image.open(file)
-    #             # 中心裁切成 1024x648
-    #             target_w, target_h = 1024, 648
-    #             target_ratio = target_w / target_h
-    #             w, h = img.size
-    #             img_ratio = w / h
-    #             if img_ratio > target_ratio:
-    #                 crop_h = h
-    #                 crop_w = int(h * target_ratio)
-    #             else:
-    #                 crop_w = w
-    #                 crop_h = int(w / target_ratio)
-    #             left = (w - crop_w) // 2
-    #             top = (h - crop_h) // 2
-    #             right = left + crop_w
-    #             bottom = top + crop_h
-    #             cropped_img = img.crop((left, top, right, bottom)).resize((target_w, target_h), Image.LANCZOS)
-    #             # 轉 base64
-    #             buf = io.BytesIO()
-    #             cropped_img.save(buf, format="JPEG")
-    #             img_bytes = buf.getvalue()
-    #             import base64
-    #             img_b64 = base64.b64encode(img_bytes).decode()
-    #             img_url = f"data:image/jpeg;base64,{img_b64}"
-    #             preview_items.append({
-    #                 "title": file.name,
-    #                 "text": f"{file.name}",
-    #                 "img": img_url
-    #             })
-    #         except Exception as e:
-    #             preview_items.append({
-    #                 "title": file.name,
-    #                 "text": f"圖片預覽失敗: {e}",
-    #                 "img": "https://placehold.co/600x400?text=預覽失敗"
-    #             })
-    # else:
-    #     preview_items = [
-    #         dict(
-    #             title="尚未上傳圖片",
-    #             text="請於左側選擇圖片後預覽",
-    #             img="https://placehold.co/600x400?text=No+Image"
-    #         )
-    #     ]
-
-    # carousel(items=preview_items)
-
+def main(basemaps):
     
+    # 初始化 current_step
+    if 'current_step' not in st.session_state:
+        st.session_state.current_step = 0
+    
+    # 步驟進度條
+    current_step = sac.steps(
+        items=[
+            sac.StepsItem(title='底圖標示'),
+            sac.StepsItem(title='缺失描述'),
+            sac.StepsItem(title='上傳照片'),
+            sac.StepsItem(title='確認內容'),
+        ],
+        format_func='title',
+        index=st.session_state.current_step,
+        return_index=True,
+    )
+    
+    # 更新 current_step 如果用戶點擊了步驟
+    if current_step != st.session_state.current_step:
+        st.session_state.current_step = current_step
+        st.rerun()
+
+    with st.container(border=True):
+        submitted = False
+        
+        if current_step == 0:
+            display_basemap_add(basemaps)
+            # st.subheader('底圖標示')
+
+            # options = ["請選擇"] + [b['map_name'] for b in basemaps]
+            # selected_base_map = st.selectbox("選擇底圖", options=options)
+            # selected_base_map_id=next((b['base_map_id'] for b in basemaps if b['map_name'] == selected_base_map), None)
+
+            # if selected_base_map != "請選擇":
+            #     selected_map_data = next((b for b in basemaps if b['map_name'] == selected_base_map), None)
+            #     if selected_map_data:
+            #         image_path="http://localhost:8000/"+selected_map_data['file_path']
+            #         value = streamlit_image_coordinates(image_path)
+            #         if value:
+            #             st.write("X="+str(value['x'])+", Y="+str(value['y']))
+            #             # st.write(value)
+            #             if floating_button(":material/add: 新增標記",key="add_mark",type="primary"):
+            #                 st.toast("新增標記成功")
+            #                 st.session_state.basemap_mark_X = value['x']
+            #                 st.session_state.basemap_mark_Y = value['y']
+            #                 st.session_state.basemap_id = selected_base_map_id
+
+        elif current_step == 1:
+            # st.subheader('缺失描述')
+            display_defect_add(category_options,vendor_options)
+
+        elif current_step == 2:
+            # st.subheader('上傳照片')
+            files= st.file_uploader("上傳缺失照片", type=["png", "jpg", "jpeg"],accept_multiple_files=True)
+
+            if files:
+                st.session_state.defect_images = files
+
+            cols = st.columns(3)
+            for i, file in enumerate(st.session_state.defect_images):
+                with cols[i % 3]:
+                    st.image(file)
+            
+        elif current_step == 3:
+
+            ### 標記、描述、照片
+            with st.container(border=True):
+                st.markdown("#### 🗺️ 底圖標記")
+                basemap = api.get_basemap(st.session_state.basemap_id)
+                # show image with red circle
+                image_url = "http://localhost:8000/" + basemap['file_path']
+
+                # 使用共用函式取得已標記圖片
+                x = st.session_state.basemap_mark_X
+                y = st.session_state.basemap_mark_Y
+                img = draw_basemap_with_marker(image_url, x, y, radius=15)
+                st.image(img, caption=f"**座標：** X = `{st.session_state.basemap_mark_X}`, Y = `{st.session_state.basemap_mark_Y}`")
+
+            with st.container(border=True):
+                st.markdown("#### 📝 缺失描述")
+                left, right = st.columns(2)
+                with left:
+                    st.markdown(f"**前置缺失編號：** {st.session_state.before_number or '—'}")
+                    st.markdown(f"**缺失描述：** {st.session_state.defect_description or '—'}")
+                with right:
+                    st.markdown(f"**缺失分類：** {st.session_state.defect_category or '—'}")
+                    st.markdown(f"**指派廠商：** {st.session_state.assigned_vendor or '—'}")
+                    st.markdown(f"**預計改善日期：** {st.session_state.expected_date.strftime('%Y-%m-%d') if st.session_state.expected_date else '—'}")
+
+            with st.container(border=True):
+                st.markdown("#### 📷 缺失照片")
+                img_cols = st.columns(3)
+                for i, file in enumerate(st.session_state.defect_images):
+                    with img_cols[i % 3]:
+                        st.image(file)
+
+        # 表單按鈕
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.session_state.current_step > 0:
+                if st.button('上一步', use_container_width=True):
+                    st.session_state.current_step -= 1
+                    st.rerun()
+        
+        with col2:
+            if st.session_state.current_step < 3:
+                if st.button('下一步', use_container_width=True):
+                    st.session_state.current_step += 1
+                    st.rerun()
+            elif st.session_state.current_step == 3:
+                submit_button = st.button('提交表單', use_container_width=True, type='primary')
+                if submit_button:
+                    st.success('表單提交成功！')
+                    st.balloons()
+                    # 清空表單數據
+                    st.session_state.current_step = 0
+                    st.rerun()
+
+main(basemaps)
