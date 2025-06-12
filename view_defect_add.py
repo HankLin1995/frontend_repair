@@ -277,12 +277,45 @@ def main(basemaps):
             elif st.session_state.current_step == 3:
                 submit_button = st.button('提交表單', use_container_width=True, type='primary')
                 if submit_button:
+                    # 準備提交資料
+                    defect_data = {
+                        "basemap_id": st.session_state.basemap_id,
+                        "coordinate_x": st.session_state.basemap_mark_X,
+                        "coordinate_y": st.session_state.basemap_mark_Y,
+                        "before_number": st.session_state.before_number,
+                        "defect_description": st.session_state.defect_description,
+                        "defect_category_id": category_options.get(st.session_state.defect_category),
+                        "vendor_id": vendor_options.get(st.session_state.assigned_vendor),
+                        "expected_date": st.session_state.expected_date.strftime('%Y-%m-%d') if st.session_state.expected_date else None
+                    }
+                    
+                    # 提交表單
+                    with st.spinner('正在提交表單...'):
+                        try:
+                            # 使用新的API函數提交缺失表單
+                            result = api.create_defect_form(
+                                project_id=st.session_state.active_project_id,
+                                user_id=1,
+                                data=defect_data,
+                                images=st.session_state.defect_images
+                            )
+                            
+                            # 檢查結果是否包含defect_id或defect_form_id (為了向後兼容)
+                            if result and ("defect_id" in result or "defect_form_id" in result):
+                                st.toast('表單提交成功！', icon="✅")
+                                # 清空表單數據
+                                for key in default_session_state.keys():
+                                    st.session_state[key] = default_session_state[key]
+                                st.session_state.current_step = 0
+                                time.sleep(1)
+                                st.rerun()
+                            else:
+                                st.error("提交失敗，請檢查資料是否完整")
+                        except Exception as e:
+                            st.error(f"提交表單時發生錯誤: {str(e)}")
+                            st.error("請確認API伺服器是否正常運作")
+                            st.error("錯誤詳情: " + str(e))
 
-                    st.toast('表單提交成功！', icon="✅")
-                    time.sleep(2)
-                    # 清空表單數據
-                    st.session_state.current_step = 0
-                    st.rerun()
 
 #========MAIN UI========
 
