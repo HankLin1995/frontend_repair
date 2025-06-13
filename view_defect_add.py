@@ -18,8 +18,11 @@ default_session_state = {
     "before_number": None,
     "defect_description": None,
     "defect_category": None,
+    "defect_category_id": None,
     "assigned_vendor": None,
+    "assigned_vendor_id": None,
     "expected_date": None,
+    "expected_day_count": None,
     "defect_images": [],
 }
 
@@ -131,9 +134,12 @@ def display_defect_add(category_options,vendor_options):
 
     if st.session_state.before_number:
         before_number=st.text_input("前置缺失編號",value=st.session_state.before_number)
+    else:
+        before_number=st.text_input("前置缺失編號",value=0)
+
+    if st.session_state.defect_description:
         defect_description = st.text_area("缺失描述",value=st.session_state.defect_description)
     else:
-        before_number=st.text_input("前置缺失編號")
         defect_description = st.text_area("缺失描述")
 
     col3, col4 = st.columns([2, 1])
@@ -148,6 +154,8 @@ def display_defect_add(category_options,vendor_options):
             defect_category = st.selectbox("缺失分類", options=category_options_list, index=category_index)
         else:
             defect_category = st.selectbox("缺失分類", options=category_options_list)
+
+        defect_category_id = category_options.get(defect_category)
     with col4:
         add_vertical_space(2)
         if st.button("找不到分類?"):
@@ -161,6 +169,7 @@ def display_defect_add(category_options,vendor_options):
             assigned_vendor = st.selectbox("指派廠商", options=vendor_options_list, index=vendor_index)
         else:
             assigned_vendor = st.selectbox("指派廠商", options=vendor_options_list)
+        assigned_vendor_id = vendor_options.get(assigned_vendor)
     with col6:
         add_vertical_space(2)
         if st.button("找不到廠商?"):
@@ -172,11 +181,17 @@ def display_defect_add(category_options,vendor_options):
     else:
         expected_date=st.date_input("預計改善日期")
 
+    expected_day_count=st.number_input("預計改善天數", min_value=1, max_value=30, value=1)
+
     st.session_state.before_number=before_number
     st.session_state.defect_description=defect_description
     st.session_state.defect_category=defect_category
+    st.session_state.defect_category_id=defect_category_id
     st.session_state.assigned_vendor=assigned_vendor
+    st.session_state.assigned_vendor_id=assigned_vendor_id
     st.session_state.expected_date=expected_date
+    st.session_state.expected_day_count=expected_day_count
+
 
 def display_defect_result():
     ### 標記、描述、照片
@@ -277,59 +292,69 @@ def main(basemaps):
             elif st.session_state.current_step == 3:
                 submit_button = st.button('提交表單', use_container_width=True, type='primary')
                 if submit_button:
-                    # 準備提交資料
+
                     defect_data = {
-                        "basemap_id": st.session_state.basemap_id,
-                        "coordinate_x": st.session_state.basemap_mark_X,
-                        "coordinate_y": st.session_state.basemap_mark_Y,
-                        "before_number": st.session_state.before_number,
                         "defect_description": st.session_state.defect_description,
-                        "defect_category_id": category_options.get(st.session_state.defect_category),
-                        "vendor_id": vendor_options.get(st.session_state.assigned_vendor),
-                        "expected_date": st.session_state.expected_date.strftime('%Y-%m-%d') if st.session_state.expected_date else None
+                        "defect_category_id": st.session_state.defect_category_id,
+                        "assigned_vendor_id": st.session_state.assigned_vendor_id,
+                        "expected_date": st.session_state.expected_date,
+                        # "expected_completion_day": st.session_state.expected_day_count,
+                        "previous_defect_id": st.session_state.before_number,
+                        "status": "改善中",
                     }
-                    
-                    # 提交表單
-                    with st.spinner('正在提交表單...'):
-                        try:
-                            # 使用新的API函數提交缺失表單
-                            result = api.create_defect_form(
-                                project_id=st.session_state.active_project_id,
-                                user_id=1,
-                                data=defect_data,
-                                images=st.session_state.defect_images
-                            )
+
+                    # st.write(defect_data)
+
+                    res=api.create_defect(st.session_state.active_project_id, 1, defect_data)
+
+                    if 'defect_id' in res:
+                        st.toast("缺失描述新增成功!",icon= "✅")
+
+                        defect_mark_data={
+                            # "defect_mark_id": res['defect_id'],
+                            "defect_id": res['defect_id'],
+                            "base_map_id": st.session_state.basemap_id,
+                            "coordinate_x": st.session_state.basemap_mark_X,
+                            "coordinate_y": st.session_state.basemap_mark_Y,
+                            "scale": 1.0
+                        }
+
+                        res2=api.create_defect_mark(defect_mark_data)
+                        
+                        # st.write(res2)
+
+                        if 'defect_mark_id' in res2:
+                            st.toast("缺失標記新增成功!",icon= "✅")
+
+                        for image_file in st.session_state.defect_images:
+                            # 這裡 image_file 應該是 UploadedFile 物件
+                            file_tuple = (image_file.name, image_file, image_file.type)
+                            res3 = api.upload_defect_image(res['defect_id'], file_tuple)
                             
-                            # 檢查結果是否包含defect_id或defect_form_id (為了向後兼容)
-                            if result and ("defect_id" in result or "defect_form_id" in result):
-                                st.toast('表單提交成功！', icon="✅")
-                                # 清空表單數據
-                                for key in default_session_state.keys():
-                                    st.session_state[key] = default_session_state[key]
-                                st.session_state.current_step = 0
-                                time.sleep(1)
-                                st.rerun()
-                            else:
-                                st.error("提交失敗，請檢查資料是否完整")
-                        except Exception as e:
-                            st.error(f"提交表單時發生錯誤: {str(e)}")
-                            st.error("請確認API伺服器是否正常運作")
-                            st.error("錯誤詳情: " + str(e))
+                            if 'photo_id' in res3:
+                                st.toast("缺失照片新增成功!",icon= "✅")
+
+
 
 
 #========MAIN UI========
 
 project = api.get_project(st.session_state.active_project_id)
 
-st.caption("工程 / "+project['project_name']+" / 缺失表單")
+if project:
 
-# --- Fetch defect categories and vendors ---
-categories = api.get_defect_categories()
-vendors = api.get_vendors()
+    st.caption("工程 / "+project['project_name']+" / 缺失表單")
 
-category_options = {str(c.get('name', c.get('category_name', '無分類'))): c['defect_category_id'] for c in categories} if categories else {}
-vendor_options = {str(v.get('vendor_name', '無廠商')): v['vendor_id'] for v in vendors} if vendors else {}
+    # --- Fetch defect categories and vendors ---
+    categories = api.get_defect_categories()
+    vendors = api.get_vendors()
 
-basemaps=api.get_basemaps(st.session_state.active_project_id)
+    category_options = {str(c.get('name', c.get('category_name', '無分類'))): c['defect_category_id'] for c in categories} if categories else {}
+    vendor_options = {str(v.get('vendor_name', '無廠商')): v['vendor_id'] for v in vendors} if vendors else {}
 
-main(basemaps)
+    basemaps=api.get_basemaps(st.session_state.active_project_id)
+
+    main(basemaps)
+else:
+    st.warning("請先至工程列表選擇當前工程!")
+    st.stop()

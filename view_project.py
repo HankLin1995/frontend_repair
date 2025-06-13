@@ -241,6 +241,11 @@ def edit_category_ui(category_id,category_name):
 
 def display_project_categories():
     categories = api.get_defect_categories()
+
+    if not categories:
+        st.info("目前沒有分類，請新增分類。")
+        return
+
     df=pd.DataFrame(categories)
     
     selected=st.pills("分類標籤",df['category_name'].tolist())
@@ -284,6 +289,9 @@ def edit_vendor_ui(vendor):
             st.error("廠商更新失敗")
 def display_vendor():
     vendors = api.get_vendors()
+    if not vendors:
+        st.info("目前沒有廠商，請新增廠商。")
+        return
     df=pd.DataFrame(vendors)
 
     event=st.dataframe(df,hide_index=True,column_config={

@@ -557,7 +557,7 @@ def delete_basemap(basemap_id: int) -> bool:
         return False
 
 
-def create_defect(project_id: int,user_id:str, data: Dict[str, Any]) -> Dict[str, Any]:
+def create_defect(project_id: int,user_id:int, data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Create a new defect
     
@@ -575,28 +575,32 @@ def create_defect(project_id: int,user_id:str, data: Dict[str, Any]) -> Dict[str
         Defect data including defect_id
     """
     url = f"{BASE_URL}/defects/"
-    
+
     # Prepare the payload
     payload = {
         "project_id": project_id,
         "submitted_id": user_id,  # Using project_id as submitted_id for now
         "defect_description": data.get("defect_description", ""),
         "defect_category_id": data.get("defect_category_id"),
-        "assigned_vendor_id": data.get("vendor_id"),
-        "status": data.get("status", "pending"),
+        "assigned_vendor_id": data.get("assigned_vendor_id"),
+        "previous_defect_id": data.get("previous_defect_id"),
+        "status": "改善中",
     }
 
-    print(payload)
-    
+    # print(payload)
+
     # Add expected completion day if provided
     if data.get("expected_date"):
-        # Convert date string to days (API expects integer)
+        # data['expected_date'] is likely a datetime.date object from Streamlit
         try:
-            from datetime import datetime
-            expected_date = datetime.strptime(data["expected_date"], "%Y-%m-%d")
-            today = datetime.now()
-            delta = expected_date - today
-            payload["expected_completion_day"] = delta.days
+            from datetime import datetime, date
+            if isinstance(data["expected_date"], date):
+                expected_date = datetime.combine(data["expected_date"], datetime.min.time())
+            else:
+                expected_date = datetime.strptime(data["expected_date"], "%Y-%m-%d")
+            today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            delta = (expected_date - today).days
+            payload["expected_completion_day"] = delta
         except Exception as e:
             print(f"Error calculating expected completion days: {e}")
     
@@ -611,7 +615,7 @@ def create_defect(project_id: int,user_id:str, data: Dict[str, Any]) -> Dict[str
         return {}
 
 
-def create_defect_mark(defect_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
+def create_defect_mark(data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Create a new defect mark
     
@@ -629,16 +633,16 @@ def create_defect_mark(defect_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
     url = f"{BASE_URL}/defect-marks/"
     
     # Prepare the payload
-    payload = {
-        "defect_form_id": defect_id,
-        "base_map_id": data.get("basemap_id"),
-        "coordinate_x": data.get("coordinate_x", 0),
-        "coordinate_y": data.get("coordinate_y", 0),
-        "scale": data.get("scale", 1.0)
-    }
+    # payload = {
+    #     "defect_form_id": defect_id,
+    #     "base_map_id": data.get("basemap_id"),
+    #     "coordinate_x": data.get("basemap_mark_X", 0),
+    #     "coordinate_y": data.get("basemap_mark_Y", 0),
+    #     "scale": data.get("scale", 1.0)
+    # }
     
     try:
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=data)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -648,22 +652,27 @@ def create_defect_mark(defect_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
         return {}
 
 
-def upload_defect_image(defect_id: int, image_file) -> Dict[str, Any]:
+def upload_defect_image(defect_id: int, image_file, description: str = "") -> Dict[str, Any]:
     """
-    Upload an image for a defect
-    
+    Upload an image for a defect (using /photos/ endpoint)
     Args:
         defect_id: ID of the defect
-        image_file: Image file to upload
-        
+        image_file: Image file to upload (should be file-like object or tuple)
+        description: Description for the image
     Returns:
         Image data including image_id
     """
-    url = f"{BASE_URL}/defects/{defect_id}/images"
-    
+    url = f"{BASE_URL}/photos/"
     try:
-        files = {"file": image_file}
-        response = requests.post(url, files=files)
+        files = {
+            "file": image_file  # image_file can be (filename, fileobj, mimetype) or file-like
+        }
+        data = {
+            "related_type": "defect",
+            "related_id": str(defect_id),
+            "description": description or ""
+        }
+        response = requests.post(url, files=files, data=data)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -672,97 +681,16 @@ def upload_defect_image(defect_id: int, image_file) -> Dict[str, Any]:
             print(f"Response content: {e.response.content}")
         return {}
 
-
-# def create_defect_form(project_id: int,user_id:str, data: Dict[str, Any], images: List[Any] = None) -> Dict[str, Any]:
-#     """
-#     Create a complete defect form with defect, defect mark, and images
-    
-#     Args:
-#         project_id: ID of the project
-#         user_id: ID of the user
-#         data: Dictionary containing defect and defect mark data
-#         images: List of image files to upload
-        
-#     Returns:
-#         Dictionary with defect_id, defect_mark_id, and image_ids
-#     """
-#     result = {}
-    
-#     # Step 1: Create defect
-#     defect_result = create_defect(project_id,user_id,data)
-#     if not defect_result or "defect_id" not in defect_result:
-#         return {"error": "Failed to create defect"}
-    
-#     defect_id = defect_result["defect_id"]
-#     result["defect_id"] = defect_id
-#     result["defect_form_id"] = defect_id  # For backward compatibility
-    
-#     # Step 2: Create defect mark
-#     if data.get("basemap_id") and data.get("coordinate_x") is not None and data.get("coordinate_y") is not None:
-#         mark_result = create_defect_mark(defect_id, data)
-#         if mark_result and "defect_mark_id" in mark_result:
-#             result["defect_mark_id"] = mark_result["defect_mark_id"]
-    
-#     # Step 3: Upload images
-#     if images:
-#         image_ids = []
-#         for image in images:
-#             image_result = upload_defect_image(defect_id, image)
-#             if image_result and "image_id" in image_result:
-#                 image_ids.append(image_result["image_id"])
-#         result["image_ids"] = image_ids
-    
-#     return result
-
-
-def get_defects(project_id: int = None, status: str = None) -> List[Dict[str, Any]]:
-    """
-    Get a list of defects with optional filtering
-    
-    Args:
-        project_id: Optional project ID to filter by
-        status: Optional status to filter by
-        
-    Returns:
-        List of defect data
-    """
-    url = f"{BASE_URL}/defects/"
-    params = {}
-    
-    if project_id is not None:
-        params["project_id"] = project_id
-    
-    if status is not None:
-        params["status"] = status
-    
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching defects: {e}")
-        return []
-
-
-def get_defect(defect_id: int) -> Dict[str, Any]:
-    """
-    Get a specific defect by ID
-    
-    Args:
-        defect_id: ID of the defect
-        
-    Returns:
-        Defect data
-    """
-    url = f"{BASE_URL}/defects/{defect_id}"
+def get_defects(project_id: int):
+    url = f"{BASE_URL}/defects/?project_id={project_id}"
     
     try:
         response = requests.get(url)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching defect {defect_id}: {e}")
-        return {}
-
-
-# 保留空行以維持文件結構
+        print(f"Error fetching defects: {e}")
+        if hasattr(e, "response") and e.response is not None:
+            print(f"Response content: {e.response.content}")
+        return []
+        
