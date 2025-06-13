@@ -583,26 +583,29 @@ def create_defect(project_id: int,user_id:int, data: Dict[str, Any]) -> Dict[str
         "defect_description": data.get("defect_description", ""),
         "defect_category_id": data.get("defect_category_id"),
         "assigned_vendor_id": data.get("assigned_vendor_id"),
+        "expected_completion_day": data.get("expected_completion_day"),
         "previous_defect_id": data.get("previous_defect_id"),
         "status": "改善中",
     }
 
+    print(payload)
+
     # print(payload)
 
     # Add expected completion day if provided
-    if data.get("expected_date"):
-        # data['expected_date'] is likely a datetime.date object from Streamlit
-        try:
-            from datetime import datetime, date
-            if isinstance(data["expected_date"], date):
-                expected_date = datetime.combine(data["expected_date"], datetime.min.time())
-            else:
-                expected_date = datetime.strptime(data["expected_date"], "%Y-%m-%d")
-            today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            delta = (expected_date - today).days
-            payload["expected_completion_day"] = delta
-        except Exception as e:
-            print(f"Error calculating expected completion days: {e}")
+    # if data.get("expected_date"):
+    #     # data['expected_date'] is likely a datetime.date object from Streamlit
+    #     try:
+    #         from datetime import datetime, date
+    #         if isinstance(data["expected_date"], date):
+    #             expected_date = datetime.combine(data["expected_date"], datetime.min.time())
+    #         else:
+    #             expected_date = datetime.strptime(data["expected_date"], "%Y-%m-%d")
+    #         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    #         delta = (expected_date - today).days
+    #         payload["expected_completion_day"] = delta
+    #     except Exception as e:
+    #         print(f"Error calculating expected completion days: {e}")
     
     try:
         response = requests.post(url, json=payload)

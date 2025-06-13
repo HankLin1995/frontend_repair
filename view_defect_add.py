@@ -22,7 +22,6 @@ default_session_state = {
     "assigned_vendor": None,
     "assigned_vendor_id": None,
     "expected_date": None,
-    "expected_day_count": None,
     "defect_images": [],
 }
 
@@ -135,7 +134,10 @@ def display_defect_add(category_options,vendor_options):
     if st.session_state.before_number:
         before_number=st.text_input("前置缺失編號",value=st.session_state.before_number)
     else:
-        before_number=st.text_input("前置缺失編號",value=0)
+        before_number=st.text_input("前置缺失編號")
+
+    if before_number=="":
+        before_number=None
 
     if st.session_state.defect_description:
         defect_description = st.text_area("缺失描述",value=st.session_state.defect_description)
@@ -181,8 +183,6 @@ def display_defect_add(category_options,vendor_options):
     else:
         expected_date=st.date_input("預計改善日期")
 
-    expected_day_count=st.number_input("預計改善天數", min_value=1, max_value=30, value=1)
-
     st.session_state.before_number=before_number
     st.session_state.defect_description=defect_description
     st.session_state.defect_category=defect_category
@@ -190,7 +190,6 @@ def display_defect_add(category_options,vendor_options):
     st.session_state.assigned_vendor=assigned_vendor
     st.session_state.assigned_vendor_id=assigned_vendor_id
     st.session_state.expected_date=expected_date
-    st.session_state.expected_day_count=expected_day_count
 
 
 def display_defect_result():
@@ -293,15 +292,22 @@ def main(basemaps):
                 submit_button = st.button('提交表單', use_container_width=True, type='primary')
                 if submit_button:
 
+                    # 將日期物件轉為 yyyy-mm-dd 字串
+                    expected_date = st.session_state.expected_date
+                    if expected_date is not None and hasattr(expected_date, "isoformat"):
+                        expected_date = expected_date.isoformat()
+
                     defect_data = {
                         "defect_description": st.session_state.defect_description,
                         "defect_category_id": st.session_state.defect_category_id,
                         "assigned_vendor_id": st.session_state.assigned_vendor_id,
-                        "expected_date": st.session_state.expected_date,
+                        "expected_completion_day": expected_date,
                         # "expected_completion_day": st.session_state.expected_day_count,
                         "previous_defect_id": st.session_state.before_number,
                         "status": "改善中",
                     }
+
+                    st.write(defect_data)
 
                     # st.write(defect_data)
 
@@ -333,6 +339,9 @@ def main(basemaps):
                             
                             if 'photo_id' in res3:
                                 st.toast("缺失照片新增成功!",icon= "✅")
+                    
+                    else:
+                        st.warning(res)
 
 
 
