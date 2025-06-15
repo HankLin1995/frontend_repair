@@ -585,7 +585,7 @@ def create_defect(project_id: int,user_id:int, data: Dict[str, Any]) -> Dict[str
         "assigned_vendor_id": data.get("assigned_vendor_id"),
         "expected_completion_day": data.get("expected_completion_day"),
         "previous_defect_id": data.get("previous_defect_id"),
-        "status": "改善中",
+        "status": data.get("status", "改善中"),  # 使用提供的狀態，如果沒有則預設為「改善中」
     }
 
     print(payload)
@@ -617,6 +617,19 @@ def create_defect(project_id: int,user_id:int, data: Dict[str, Any]) -> Dict[str
             print(f"Response content: {e.response.content}")
         return {}
 
+def delete_defect(defect_id: int) -> bool:
+    """
+    Delete a defect by ID
+    """
+    url = f"{BASE_URL}/defects/{defect_id}"
+    
+    try:
+        response = requests.delete(url)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Error deleting defect {defect_id}: {e}")
+        return False
 
 def create_defect_mark(data: Dict[str, Any]) -> Dict[str, Any]:
     """

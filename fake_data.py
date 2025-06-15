@@ -110,7 +110,22 @@ DEFECT_DESCRIPTIONS = [
     "停車場地面龜裂",
     "公共區域照明不足",
     "安全門警報系統故障",
-    "監視器畫面模糊不清"
+    "監視器畫面模糊不清",
+    "外牆磁磚脫落，有安全疑慮",
+    "電梯內部按鈕面板損壞",
+    "地下室滲水嚴重",
+    "中央空調系統異常噪音",
+    "消防灑水系統測試失敗",
+    "社區大門感應系統故障",
+    "游泳池過濾系統異常",
+    "健身房跑步機故障",
+    "社區監控系統離線",
+    "大廳地板不平整，有絆倒風險",
+    "車道柵欄無法正常運作",
+    "屋頂防水層破損",
+    "陽台排水孔堵塞",
+    "廁所馬桶沖水系統故障",
+    "廚房抽油煙機效能不佳"
 ]
 
 def create_categories(project_id=1):
@@ -211,10 +226,38 @@ def create_defects(project_id=1, count=20):
             vendor = random.choice(vendors)
             basemap = random.choice(basemaps)
             
-            # 隨機生成預期完成日期（1-30天內）
-            future_date = datetime.now() + timedelta(days=random.randint(1, 30))
+            # 隨機選擇狀態
+            # 根據utils.py中的get_status_class函數，狀態有：'已完成', '改善中', '已取消', '等待中', '未設定'
+            status_options = ['已完成', '改善中', '已取消', '等待中', '未設定']
+            status_weights = [0.25, 0.4, 0.1, 0.2, 0.05]  # 權重調整，使改善中的比例較高
+            status = random.choices(status_options, weights=status_weights, k=1)[0]
+            
+            # 根據狀態設定不同的預期完成日期
+            current_date = datetime.now()
+            
+            if status == '已完成':
+                # 已完成的缺失：預期完成日期在過去1-30天內，實際已完成
+                days_offset = random.randint(1, 30)
+                future_date = current_date - timedelta(days=random.randint(1, days_offset))
+            elif status == '已取消':
+                # 已取消的缺失：預期完成日期可能在過去或未來
+                days_offset = random.randint(-15, 15)
+                future_date = current_date + timedelta(days=days_offset)
+            elif status == '改善中':
+                # 改善中的缺失：預期完成日期在未來1-14天內
+                future_date = current_date + timedelta(days=random.randint(1, 14))
+            elif status == '等待中':
+                # 等待中的缺失：預期完成日期在未來7-30天內
+                future_date = current_date + timedelta(days=random.randint(7, 30))
+            else:  # '未設定'
+                # 未設定狀態的缺失：可能沒有預期完成日期
+                if random.random() < 0.3:  # 30%的機率沒有預期完成日期
+                    future_date = None
+                else:
+                    future_date = current_date + timedelta(days=random.randint(1, 45))
+            
             # 只保留日期部分，去掉時間部分
-            expected_date = future_date.date().isoformat()
+            expected_date = future_date.date().isoformat() if future_date else None
             
             # 隨機選擇缺失描述
             defect_description = random.choice(DEFECT_DESCRIPTIONS)
@@ -224,9 +267,9 @@ def create_defects(project_id=1, count=20):
                 "defect_description": defect_description,
                 "defect_category_id": category["defect_category_id"],
                 "assigned_vendor_id": vendor["vendor_id"],
-                "expected_completion_day": expected_date,  # 已修正為只有日期部分
+                "expected_completion_day": expected_date,
                 "previous_defect_id": None,
-                "status": "改善中",
+                "status": status,
             }
             
             # 創建缺失
@@ -270,11 +313,11 @@ def generate_all_fake_data(project_id=1, defect_count=20):
     """
     print(f"開始為專案 {project_id} 生成假資料...")
     
-    # 創建分類
-    categories = create_categories(project_id)
+    # # 創建分類
+    # categories = create_categories(project_id)
     
-    # 創建廠商
-    vendors = create_vendors(project_id)
+    # # 創建廠商
+    # vendors = create_vendors(project_id)
     
     # 創建缺失
     defects = create_defects(project_id, defect_count)
@@ -291,6 +334,6 @@ def generate_all_fake_data(project_id=1, defect_count=20):
 # 如果直接執行此檔案，則生成所有假資料
 if __name__ == "__main__":
     project_id = 1  # 預設專案ID
-    defect_count = 30  # 預設缺失數量
+    defect_count = 50  # 預設缺失數量，增加到50個以便有更多樣化的數據
     
     generate_all_fake_data(project_id, defect_count)
