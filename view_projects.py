@@ -114,14 +114,18 @@ def display_projects_card():
 
         with cols[i % 3]:
             project_origin=api.get_project(project['project_id'])
-            image_url="http://localhost:8000/"+project_origin['image_path']
+            # st.write(project_origin)
+            # image_url="http://localhost:8000/"+project_origin['image_path']
             # st.write(image_url)
-            render_project_card(project_origin, image_url,role)
+            render_project_card(project_origin,role)
 
-def render_project_card(project, image_url,role):
+def render_project_card(project,role):
     """渲染單個工程卡片"""
     # 確定這是否為當前工程
     is_active = st.session_state.active_project_id == project['project_id']
+
+    image_url="http://localhost:8000/"+project['image_path']
+
     # 創建卡片容器
     with st.container(border=True):
         # 工程圖標
@@ -139,8 +143,10 @@ def render_project_card(project, image_url,role):
         # st.progress(30/100,"目前進度(30%)")
         # 工程狀態
         # st.badge("工程進行中", color="blue")
-
         st.markdown(f"**您的角色:** {role}")
+
+        if role=="擁有者":
+            st.markdown("**專案ID:** "+project['unique_code'])
 
         # st.markdown("---")
         

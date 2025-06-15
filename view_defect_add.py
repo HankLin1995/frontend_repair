@@ -339,6 +339,21 @@ def main(basemaps):
                             
                             if 'photo_id' in res3:
                                 st.toast("缺失照片新增成功!",icon= "✅")
+
+                        #清空session
+                        st.session_state.defect_images=[]
+                        st.session_state.basemap_id=None
+                        st.session_state.basemap_mark_X=None
+                        st.session_state.basemap_mark_Y=None
+                        st.session_state.before_number=None
+                        st.session_state.defect_description=None
+                        st.session_state.defect_category=None
+                        st.session_state.defect_category_id=None
+                        st.session_state.assigned_vendor=None
+                        st.session_state.assigned_vendor_id=None
+                        st.session_state.expected_date=None
+                        st.session_state.current_step=0
+                        st.rerun()
                     
                     else:
                         st.warning(res)

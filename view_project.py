@@ -302,6 +302,7 @@ def display_vendor():
         "email":"電子郵件",
         "line_id":"LINE ID",
         "responsibilities":"負責範圍",
+        "unique_code":"廠商確認碼",
         "project_id":None
     },
     on_select="rerun",
