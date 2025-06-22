@@ -274,9 +274,9 @@ def create_defects(project_id=1, count=20):
                 "status": status,
             }
 
-            print("********")
-            print(defect_data)
-            print("********")
+            # print("********")
+            # print(defect_data)
+            # print("********")
             
             # 創建缺失
             result = api.create_defect(project_id, 1, defect_data)
