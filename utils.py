@@ -26,11 +26,11 @@ def get_urgency_class(days):
         if days <= 0:
             return '🟥 '  # 已逾期
         elif days <= 7:
-            return '🟧 '  # 緊急
+            return '🟨 '  # 緊急
         elif days <= 14:
-            return '🟨 '  # 待處理
-        elif days < 999:
-            return '🟩 '  # 未開始
+            return '🟩 '  # 待處理
+        # elif days < 999:
+        #     return '🟩 '  # 未開始
         else:
             return '⬜️ '  # 未設定
     except:

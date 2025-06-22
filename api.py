@@ -580,32 +580,8 @@ def create_defect(project_id: int,user_id:int, data: Dict[str, Any]) -> Dict[str
     payload = {
         "project_id": project_id,
         "submitted_id": user_id,  # Using project_id as submitted_id for now
-        "defect_description": data.get("defect_description", ""),
-        "defect_category_id": data.get("defect_category_id"),
-        "assigned_vendor_id": data.get("assigned_vendor_id"),
-        "expected_completion_day": data.get("expected_completion_day"),
-        "previous_defect_id": data.get("previous_defect_id"),
-        "status": data.get("status", "改善中"),  # 使用提供的狀態，如果沒有則預設為「改善中」
+        **data
     }
-
-    print(payload)
-
-    # print(payload)
-
-    # Add expected completion day if provided
-    # if data.get("expected_date"):
-    #     # data['expected_date'] is likely a datetime.date object from Streamlit
-    #     try:
-    #         from datetime import datetime, date
-    #         if isinstance(data["expected_date"], date):
-    #             expected_date = datetime.combine(data["expected_date"], datetime.min.time())
-    #         else:
-    #             expected_date = datetime.strptime(data["expected_date"], "%Y-%m-%d")
-    #         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    #         delta = (expected_date - today).days
-    #         payload["expected_completion_day"] = delta
-    #     except Exception as e:
-    #         print(f"Error calculating expected completion days: {e}")
     
     try:
         response = requests.post(url, json=payload)
@@ -630,6 +606,33 @@ def delete_defect(defect_id: int) -> bool:
     except requests.exceptions.RequestException as e:
         print(f"Error deleting defect {defect_id}: {e}")
         return False
+
+
+def update_defect(defect_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Update a defect by ID
+    
+    Args:
+        defect_id: ID of the defect to update
+        data: Dictionary containing defect data to update
+            - repair_description: Description of the repair (optional)
+            - status: New status of the defect (optional)
+            - other fields that need to be updated
+            
+    Returns:
+        Updated defect data
+    """
+    url = f"{BASE_URL}/defects/{defect_id}"
+    
+    try:
+        response = requests.put(url, json=data)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating defect {defect_id}: {e}")
+        if hasattr(e, "response") and e.response is not None:
+            print(f"Response content: {e.response.content}")
+        return {}
 
 def create_defect_mark(data: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -697,6 +700,29 @@ def upload_defect_image(defect_id: int, image_file, description: str = "") -> Di
             print(f"Response content: {e.response.content}")
         return {}
 
+
+def get_defect_by_unique_code(unique_code: str) -> Dict[str, Any]:
+    """
+    Get a defect by its unique code
+    
+    Args:
+        unique_code: Unique code of the defect
+        
+    Returns:
+        Defect data including defect_id, defect_description, etc.
+    """
+    url = f"{BASE_URL}/defects/unique_code/{unique_code}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching defect by unique code {unique_code}: {e}")
+        if hasattr(e, "response") and e.response is not None:
+            print(f"Response content: {e.response.content}")
+        return {}
+
 def get_defects(project_id: int):
     url = f"{BASE_URL}/defects/?project_id={project_id}"
     
@@ -710,3 +736,15 @@ def get_defects(project_id: int):
             print(f"Response content: {e.response.content}")
         return []
         
+def get_defect(defect_id: int,with_marks: bool=False,with_photos: bool=False,with_improvements: bool=False,with_full_related: bool=False):
+    url = f"{BASE_URL}/defects/{defect_id}?with_marks={with_marks}&with_photos={with_photos}&with_improvements={with_improvements}&with_full_related={with_full_related}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching defect {defect_id}: {e}")
+        if hasattr(e, "response") and e.response is not None:
+            print(f"Response content: {e.response.content}")
+        return {}

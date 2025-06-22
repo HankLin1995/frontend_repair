@@ -38,14 +38,17 @@ def get_defects_df():
     show_columns = [
         'defect_id',            # 缺失編號
         'previous_defect_id',   # 前置缺失編號
+        'location',             # 位置
         'defect_description',   # 缺失描述
         'category_name',        # 分類名稱
         'assigned_vendor_name', # 廠商
+        'responsible_vendor_name', # 負責廠商
         'expected_completion_day', # 預計完成日期
         'urgency_class',        # 緊急程度分類
         'urgency_days',         # 剩餘天數
         'created_at',           # 建立時間
-        'status'                # 目前狀態
+        'status' ,               # 目前狀態
+        'unique_code'           # 唯一編號
     ]
     # 處理 created_at 只顯示年月日
     if 'created_at' in df_defects.columns:
@@ -138,20 +141,23 @@ event = st.dataframe(
     column_config={
         'defect_id': '缺失編號',
         'previous_defect_id': '前置缺失編號',
+        'location':'位置',
         'defect_description': '缺失描述',
         'category_name': '分類名稱',
         'assigned_vendor_name': '廠商',
-        'expected_completion_day': "預計完成日期",
+        'responsible_vendor_name': '負責廠商',
+        'expected_completion_day': None,#"預計完成日期",
         'urgency_class': '期限',
         'urgency_days': None,
-        'created_at': '建立時間',
-        'status': '狀態'
+        'created_at': None,#'建立時間',
+        'status': '狀態',
+        'unique_code': None
     },
     on_select="rerun",
-    selection_mode="multi-row"
+    selection_mode="single-row"
 )
 
-st.markdown("圖例說明: 🟥0日內,🟧7日內,🟨14日內")
+st.caption("圖例說明: 🟥0日內,🟨7日內,🟩14日內,⬜️14日以上")
 
 # 顯示選中的行
 selected_rows = event.selection.rows
@@ -161,12 +167,12 @@ if selected_rows:
     # 編輯、刪除
     with col1:
         if st.button("📝 編輯",key="edit",use_container_width=True):
-            edit_defect_ui(selected_rows)
+            # edit_defect_ui(selected_rows)
+            pass
 
     with col2:
-        if st.button(":star: 修繕",key="repair",use_container_width=True):
-            pass
-    
+        code = df_filter.iloc[selected_rows[0]]['unique_code']
+        st.link_button(":star: 修繕",f"http://localhost:8501?defect_unique_code={code}",use_container_width=True)
     with col3:
         if st.button("🗑️ 刪除",key="delete",use_container_width=True):
             df_selected = df_filter.iloc[selected_rows]

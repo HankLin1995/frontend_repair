@@ -269,8 +269,14 @@ def create_defects(project_id=1, count=20):
                 "assigned_vendor_id": vendor["vendor_id"],
                 "expected_completion_day": expected_date,
                 "previous_defect_id": None,
+                "responsible_vendor_id": vendor["vendor_id"],
+                "location": "1F",
                 "status": status,
             }
+
+            print("********")
+            print(defect_data)
+            print("********")
             
             # 創建缺失
             result = api.create_defect(project_id, 1, defect_data)
@@ -290,6 +296,7 @@ def create_defects(project_id=1, count=20):
                 # mark_result = api.create_defect_mark(defect_mark_data)
                 # if 'defect_mark_id' in mark_result:
                 #     print(f"成功創建缺失標記 #{i+1}")
+                print(result)
                 
                 created_defects.append(result)
             else:
@@ -323,8 +330,8 @@ def generate_all_fake_data(project_id=1, defect_count=20):
     defects = create_defects(project_id, defect_count)
     
     summary = {
-        "categories_created": len(categories),
-        "vendors_created": len(vendors),
+        # "categories_created": len(categories),
+        # "vendors_created": len(vendors),
         "defects_created": len(defects)
     }
     
@@ -334,6 +341,6 @@ def generate_all_fake_data(project_id=1, defect_count=20):
 # 如果直接執行此檔案，則生成所有假資料
 if __name__ == "__main__":
     project_id = 1  # 預設專案ID
-    defect_count = 50  # 預設缺失數量，增加到50個以便有更多樣化的數據
+    defect_count = 30  # 預設缺失數量，增加到50個以便有更多樣化的數據
     
     generate_all_fake_data(project_id, defect_count)
