@@ -286,7 +286,7 @@ def display_vendor_performance(df):
             '平均修復天數': avg_repair if avg_repair is not None else '-'
         })
     perf_df = pd.DataFrame(vendor_stats).sort_values('完成率', ascending=False).head(10)
-    st.subheader("🏆 廠商績效指標 (前10名)")
+    st.markdown("#### 🏆 廠商績效指標 (前10名)")
     st.dataframe(perf_df.style.format({'完成率': '{:.1f}%', '平均修復天數': '{:.1f}'}), use_container_width=True)
 
     # 可選：條形圖視覺化
@@ -308,49 +308,23 @@ def display_vendor_performance(df):
     fig.update_layout(barmode='stack', title='廠商完成率與逾期數')
     st.plotly_chart(fig, use_container_width=True)
 
-# def display_category_performance(df):
-#     if df.empty or 'category_name' not in df.columns:
-#         st.info("無分類資料")
-#         return
 
-#     cat_group = df.groupby('category_name')
-#     cat_stats = []
-#     for cat, group in cat_group:
-#         total = len(group)
-#         completed = group[group['status'] == '已完成']
-#         avg_repair = None
-#         if not completed.empty and 'created_at_dt' in completed.columns and 'updated_at' in completed.columns:
-#             completed['updated_at_dt'] = pd.to_datetime(completed['updated_at'])
-#             completed['repair_days'] = (completed['updated_at_dt'] - completed['created_at_dt']).dt.days
-#             avg_repair = completed['repair_days'].mean()
-#         cat_stats.append({
-#             '分類': cat,
-#             '總缺失': total,
-#             '完成率': len(completed) / total * 100 if total else 0,
-#             '平均修復天數': avg_repair if avg_repair is not None else '-'
-#         })
-#     cat_df = pd.DataFrame(cat_stats).sort_values('總缺失', ascending=False).head(10)
-#     st.subheader("📚 缺失分類績效 (前10名)")
-#     st.dataframe(cat_df.style.format({'完成率': '{:.1f}%', '平均修復天數': '{:.1f}'}), use_container_width=True)
+def filter_df(df):
+    # ===== 月份篩選 =====
+    # 確保 created_at 為 datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['created_at']):
+        df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce')
 
-#     # 條形圖
-#     fig = go.Figure()
-#     fig.add_trace(go.Bar(
-#         y=cat_df['分類'],
-#         x=cat_df['總缺失'],
-#         name='缺失數量',
-#         orientation='h',
-#         marker_color='#3498db'
-#     ))
-#     fig.add_trace(go.Bar(
-#         y=cat_df['分類'],
-#         x=cat_df['完成率'],
-#         name='完成率(%)',
-#         orientation='h',
-#         marker_color='#2ecc71'
-#     ))
-#     fig.update_layout(barmode='group', title='分類缺失數量與完成率')
-#     st.plotly_chart(fig, use_container_width=True)
+    # 取得所有月份 (格式: 2024-06)
+    df['month'] = df['created_at'].dt.to_period('M').astype(str)
+    months = sorted(df['month'].dropna().unique(), reverse=True)
+
+    selected_month = st.sidebar.selectbox('選擇月份', options=['全部'] + months, index=0)
+
+    if selected_month != '全部':
+        df = df[df['month'] == selected_month].copy()
+    
+    return df
 
 # ====== MAIN PAGE =======
 
@@ -359,27 +333,17 @@ show_project()
 # 獲取缺失數據
 df = get_defects_df()
 
+# ===== 月份篩選 =====
+df = filter_df(df)
+
 # 顯示主要指標
-st.subheader('📊 缺失統計指標')
 display_metrics(df)
-
-# 分兩列顯示圖表
-# col1, col2 = st.columns(2,border=True)
-
-# with col1:
-#     # st.plotly_chart(display_status_chart(df), use_container_width=True)
-#     st.plotly_chart(display_category_chart(df), use_container_width=True)
-
-# with col2:
-#     # st.plotly_chart(display_urgency_chart(df), use_container_width=True)
-#     st.plotly_chart(display_vendor_chart(df), use_container_width=True)
 
 tab1, tab2, tab3 = st.tabs(["📊 總覽", "🏆 廠商績效", "📚 分類分析"])
 with tab1:
-    # display_metrics(df)
     st.plotly_chart(display_category_chart(df), use_container_width=True)
     st.plotly_chart(display_vendor_chart(df), use_container_width=True)
 with tab2:
     display_vendor_performance(df)
 with tab3:
-    display_category_performance(df)
+    pass

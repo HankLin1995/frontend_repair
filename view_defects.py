@@ -51,7 +51,7 @@ def get_defects_df():
     if 'created_at' in df_defects.columns:
         df_defects['created_at'] = pd.to_datetime(df_defects['created_at']).dt.date.astype(str)
 
-    df_show = df_defects[show_columns]
+    df_show = df_defects[show_columns].copy()
     df_show['status'] = df_show['status'].apply(get_status_class)
 
     return df_show
@@ -126,11 +126,6 @@ def delete_defects(df_selected):
 
 #====== MAIN PAGE=======
 
-# with st.sidebar:
-#     if st.button("重新整理"):
-#         st.cache_data.clear()
-#         st.rerun()
-
 show_project()
 
 df=get_defects_df()
@@ -155,6 +150,8 @@ event = st.dataframe(
     on_select="rerun",
     selection_mode="multi-row"
 )
+
+st.markdown("圖例說明: 🟥0日內,🟧7日內,🟨14日內")
 
 # 顯示選中的行
 selected_rows = event.selection.rows
