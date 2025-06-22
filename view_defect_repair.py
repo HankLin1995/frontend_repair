@@ -1,45 +1,60 @@
 import streamlit as st
 import api
+from utils import draw_basemap_with_marker
 
 defect_data=api.get_defect_by_unique_code(st.session_state.defect_unique_code)
 
-st.write(defect_data)
+# st.write(defect_data)
 
-st.markdown("---")
+# st.markdown("---")
 
-defect_detail=api.get_defect(defect_data['defect_id'],with_full_related=True)
+defect_detail=api.get_defect(defect_data['defect_id'],with_photos=True,with_marks=True,with_full_related=True)
 
-st.write(defect_detail)
-
-st.markdown("---")
+st.sidebar.json(defect_detail)
 
 
+with st.expander("🔢 缺失詳情",expanded=True):
+    # st.markdown(f"**🔢 前置缺失編號：** {defect_detail['previous_defect_id'] or '—'}")
+    st.markdown(f"**📍 位置：** {defect_detail['location'] or '—'}")
+    st.markdown(f"**📝 缺失描述：** {defect_detail['defect_description'] or '—'}")
+    # st.markdown(f"**🏷️ 缺失分類：** {defect_detail['category_name'] or '—'}")
+    st.markdown(f"**🏭 指派廠商：** {defect_detail['assigned_vendor_name'] or '—'}")
+    # 只顯示日期部分
+    import pandas as pd
+    created_at = defect_detail['created_at']
+    if created_at:
+        date_str = pd.to_datetime(created_at).strftime('%Y-%m-%d')
+        st.markdown(f"**📅創建日期：** {date_str}")
+    else:
+        st.markdown("**📅創建日期：** —")
+    # st.markdown(f"**🏭 責任廠商：** {defect_detail['responsible_vendor_name'] or '—'}")
+    # st.markdown(f"**📅 預計改善日期：** {defect_detail['expected_completion_date'].strftime('%Y-%m-%d') if defect_detail['expected_completion_date'] else '—'}")
 
-# # 初始化 session state 變數
-# def init_repair_session_state():
-#     # 檢查是否有缺失的唯一碼
-#     if "defect_unique_code" not in st.session_state:
-#         st.error("未提供缺失唯一碼，無法進行修繕")
-#         return False
+with st.expander("📷缺失照片"):
+    img_cols = st.columns(3)
+    for i, file in enumerate(defect_detail['photos']):
+        with img_cols[i % 3]:
+            st.image("http://localhost:8000"+file['image_url'])
+
+with st.expander("📍缺失標記"):
+    base_map=api.get_basemap(defect_detail['defect_marks'][0]['base_map_id'])
+    base_map_image="http://localhost:8000/"+base_map['file_path']
+
+    # st.write(base_map)
+    x = defect_detail['defect_marks'][0]['coordinate_x']
+    y = defect_detail['defect_marks'][0]['coordinate_y']
+    img = draw_basemap_with_marker(base_map_image, x, y, radius=15)
+    st.image(img, caption=f"**座標：** X = `{x}`, Y = `{y}`")
+
     
-#     # 初始化修繕表單相關的 session state 變數
-#     if "repair_description" not in st.session_state:
-#         st.session_state.repair_description = ""
-#     if "repair_images" not in st.session_state:
-#         st.session_state.repair_images = []
-#     if "repair_image_files" not in st.session_state:
-#         st.session_state.repair_image_files = []
-#     if "defect_data" not in st.session_state:
-#         # 從 API 獲取缺失詳情
-#         defect_data = api.get_defect_by_unique_code(st.session_state.defect_unique_code)
-#         if not defect_data:
-#             st.error(f"找不到唯一碼為 {st.session_state.defect_unique_code} 的缺失")
-#             return False
-#         st.session_state.defect_data = defect_data
-    
-#     return True
 
-# # 顯示缺失詳情
+with st.container(border=True):
+    repair_note=st.text_area("修繕說明")
+    repair_images=st.file_uploader("上傳修繕照片",accept_multiple_files=True)
+
+    if st.button("確認修繕",type="primary",use_container_width=True):
+        pass
+
 # def display_defect_details():
 #     defect = st.session_state.defect_data
 #     defect_detail=api.get_defect(defect['defect_id'],with_full_related=True)

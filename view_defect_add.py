@@ -21,8 +21,11 @@ default_session_state = {
     "defect_category_id": None,
     "assigned_vendor": None,
     "assigned_vendor_id": None,
+    "responsible_vendor": None,
+    "responsible_vendor_id": None,
     "expected_date": None,
     "defect_images": [],
+    "location": None,
 }
 
 for key, value in default_session_state.items():
@@ -139,6 +142,8 @@ def display_defect_add(category_options,vendor_options):
     if before_number=="":
         before_number=None
 
+    location=st.text_input("位置")
+
     if st.session_state.defect_description:
         defect_description = st.text_area("缺失描述",value=st.session_state.defect_description)
     else:
@@ -172,6 +177,14 @@ def display_defect_add(category_options,vendor_options):
         else:
             assigned_vendor = st.selectbox("指派廠商", options=vendor_options_list)
         assigned_vendor_id = vendor_options.get(assigned_vendor)
+
+        if st.session_state.responsible_vendor:
+            vendor_index = get_selectbox_index(st.session_state.responsible_vendor, vendor_options_list, vendor_options)
+            responsible_vendor = st.selectbox("責任廠商", options=vendor_options_list, index=vendor_index)
+        else:
+            responsible_vendor = st.selectbox("責任廠商", options=vendor_options_list)
+        responsible_vendor_id = vendor_options.get(responsible_vendor)
+
     with col6:
         add_vertical_space(2)
         if st.button("找不到廠商?"):
@@ -185,11 +198,14 @@ def display_defect_add(category_options,vendor_options):
 
     st.session_state.before_number=before_number
     st.session_state.defect_description=defect_description
+    st.session_state.location=location
     st.session_state.defect_category=defect_category
     st.session_state.defect_category_id=defect_category_id
     st.session_state.assigned_vendor=assigned_vendor
     st.session_state.assigned_vendor_id=assigned_vendor_id
     st.session_state.expected_date=expected_date
+    st.session_state.responsible_vendor=responsible_vendor
+    st.session_state.responsible_vendor_id=responsible_vendor_id
 
 
 def display_defect_result():
@@ -213,9 +229,11 @@ def display_defect_result():
         st.markdown("#### 📝 缺失描述")
         with st.container(border=True):
             st.markdown(f"**🔢 前置缺失編號：** {st.session_state.before_number or '—'}")
+            st.markdown(f"**📍 位置：** {st.session_state.location or '—'}")
             st.markdown(f"**📝 缺失描述：** {st.session_state.defect_description or '—'}")
             st.markdown(f"**🏷️ 缺失分類：** {st.session_state.defect_category or '—'}")
             st.markdown(f"**🏭 指派廠商：** {st.session_state.assigned_vendor or '—'}")
+            st.markdown(f"**🏭 責任廠商：** {st.session_state.responsible_vendor or '—'}")
             st.markdown(f"**📅 預計改善日期：** {st.session_state.expected_date.strftime('%Y-%m-%d') if st.session_state.expected_date else '—'}")
 
     st.markdown("#### 📷 缺失照片")
@@ -301,7 +319,9 @@ def main(basemaps):
                         "defect_description": st.session_state.defect_description,
                         "defect_category_id": st.session_state.defect_category_id,
                         "assigned_vendor_id": st.session_state.assigned_vendor_id,
+                        "responsible_vendor_id": st.session_state.responsible_vendor_id,
                         "expected_completion_day": expected_date,
+                        "location": st.session_state.location,
                         # "expected_completion_day": st.session_state.expected_day_count,
                         "previous_defect_id": st.session_state.before_number,
                         "status": "改善中",
@@ -352,6 +372,9 @@ def main(basemaps):
                         st.session_state.assigned_vendor=None
                         st.session_state.assigned_vendor_id=None
                         st.session_state.expected_date=None
+                        st.session_state.location=None
+                        st.session_state.responsible_vendor=None
+                        st.session_state.responsible_vendor_id=None
                         st.session_state.current_step=0
                         st.rerun()
                     

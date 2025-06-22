@@ -35,3 +35,19 @@ def get_urgency_class(days):
             return '⬜️ '  # 未設定
     except:
         return '❔ '  # 無法辨識
+
+def draw_basemap_with_marker(image_url, x, y, radius=15):
+
+    import requests
+    from PIL import Image, ImageDraw
+    import io
+
+    """
+    下載底圖並在 (x, y) 畫紅圈，回傳 PIL Image
+    """
+    resp = requests.get(image_url)
+    img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+    if x is not None and y is not None:
+        draw = ImageDraw.Draw(img)
+        draw.ellipse((x - radius, y - radius, x + radius, y + radius), outline="red", width=4)
+    return img
