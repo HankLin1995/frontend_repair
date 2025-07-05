@@ -34,6 +34,7 @@ else:
     defect_page = st.Page("view_defects.py", title="缺失列表", icon=":material/bug_report:")  # 缺失 => bug_report
     defect_add_page = st.Page("view_defect_add.py", title="缺失表單", icon=":material/assignment:")  # 缺失詳情/新增 => assignment
     dashboard_page = st.Page("view_dashboard.py", title="儀錶板", icon=":material/dashboard:")  # 儀錶板 => dashboard（保留原來的）
+    # dashboard_new_page = st.Page("view_dashboard_new.py", title="儀錶板", icon=":material/dashboard:")  # 儀錶板 => dashboard（保留原來的）
 
     pg=st.navigation(
         {

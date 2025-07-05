@@ -95,7 +95,7 @@ def display_projects_card():
     """以卡片形式顯示工程列表"""
     # 從 API 獲取工程
     # projects = api.get_projects()
-    projects=api.get_project_by_email(st.session_state.user_id)
+    projects=api.get_project_by_email(st.session_state.user_mail)
 
     # st.write(projects)
     

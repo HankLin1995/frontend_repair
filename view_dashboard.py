@@ -98,7 +98,7 @@ def display_status_chart(df):
     
     return fig
 
-def display_urgency_chart(df):
+def display_urgency_chart(df, style='default'):
     if df.empty:
         return
         
@@ -109,20 +109,100 @@ def display_urgency_chart(df):
     urgency_counts = df['urgency_text'].value_counts().reset_index()
     urgency_counts.columns = ['緊急程度', '數量']
     
-    # 創建條形圖
-    fig = px.bar(
-        urgency_counts, 
-        x='緊急程度', 
-        y='數量',
-        title='缺失緊急程度分布',
-        color_discrete_sequence=['#9b59b6']
-    )
+    # 計算百分比 (僅用於內部計算，不添加到DataFrame)
+    percent_values = urgency_counts['數量'] / urgency_counts['數量'].sum() * 100
     
-    fig.update_layout(height=400)
+    # 根據選擇的風格創建不同的條形圖
+    if style == 'gradient':
+        # 風格1: 漸變色彩
+        fig = px.bar(
+            urgency_counts, 
+            x='緊急程度', 
+            y='數量',
+            title='缺失緊急程度分布',
+            color='數量',  # 根據數量著色
+            color_continuous_scale=px.colors.sequential.Viridis,
+            text='數量'  # 在柱子上顯示數值
+        )
+        fig.update_traces(textposition='outside')
+        
+    elif style == 'modern':
+        # 風格2: 現代簡約風格
+        fig = px.bar(
+            urgency_counts, 
+            x='緊急程度', 
+            y='數量',
+            title='缺失緊急程度分布',
+            color_discrete_sequence=px.colors.qualitative.Bold,
+            template='plotly_white',
+            text='數量',
+            hover_data={'緊急程度': True, '數量': True, '百分比': (':.1f%', percent_values)}
+        )
+        fig.update_traces(textposition='outside')
+        fig.update_layout(
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=True, gridcolor='rgba(211,211,211,0.3)'),
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
+        
+    elif style == 'detailed':
+        # 風格3: 詳細資訊風格
+        fig = px.bar(
+            urgency_counts, 
+            x='緊急程度', 
+            y='數量',
+            title='缺失緊急程度分布',
+            color='緊急程度',
+            text='數量',
+            hover_data={'緊急程度': True, '數量': True, '百分比': (':.1f%', percent_values)}
+        )
+        fig.update_traces(texttemplate='%{text} (%{customdata[2]})', textposition='outside')
+        
+        # 添加平均值參考線
+        avg_value = urgency_counts['數量'].mean()
+        fig.add_shape(
+            type="line",
+            y0=avg_value, y1=avg_value,
+            x0=-0.5, x1=len(urgency_counts)-0.5,
+            line=dict(color="red", width=2, dash="dash")
+        )
+        
+        # 添加註釋
+        fig.add_annotation(
+            y=avg_value,
+            x=len(urgency_counts)-1,
+            text=f"平均: {avg_value:.1f}",
+            showarrow=True,
+            arrowhead=1
+        )
+        
+    else:  # default
+        # 原始風格
+        fig = px.bar(
+            urgency_counts, 
+            x='緊急程度', 
+            y='數量',
+            title='缺失緊急程度分布',
+            color_discrete_sequence=['#9b59b6']
+        )
+    
+    # 共同的布局設置
+    fig.update_layout(
+        height=400,
+        title={
+            'text': "缺失緊急程度分布",
+            'y':0.95,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        xaxis_title="緊急程度",
+        yaxis_title="缺失數量"
+    )
     
     return fig
 
-def display_category_chart(df):
+def display_category_chart(df, style='default'):
     if df.empty:
         return
         
@@ -134,21 +214,91 @@ def display_category_chart(df):
     if len(category_counts) > 10:
         category_counts = category_counts.head(10)
     
-    # 創建水平條形圖
-    fig = px.bar(
-        category_counts, 
-        y='分類', 
-        x='數量',
-        title='缺失分類分布 (前10名)',
-        orientation='h',
-        color_discrete_sequence=['#3498db']
-    )
+    # 計算百分比 (僅用於內部計算，不添加到DataFrame)
+    percent_values = category_counts['數量'] / category_counts['數量'].sum() * 100
     
-    fig.update_layout(height=400)
+    # 根據選擇的風格創建不同的條形圖
+    if style == 'gradient':
+        # 風格1: 漸變色彩
+        fig = px.bar(
+            category_counts, 
+            y='分類', 
+            x='數量',
+            title='缺失分類分布 (前10名)',
+            orientation='h',
+            color='數量',  # 根據數量著色
+            color_continuous_scale=px.colors.sequential.Blues,
+            text='數量'  # 在柱子上顯示數值
+        )
+        fig.update_traces(textposition='outside')
+        
+    elif style == 'modern':
+        # 風格2: 現代簡約風格
+        fig = px.bar(
+            category_counts, 
+            y='分類', 
+            x='數量',
+            title='缺失分類分布 (前10名)',
+            orientation='h',
+            color_discrete_sequence=['#3498db'],
+            template='plotly_white',
+            text='數量',
+            hover_data={'分類': True, '數量': True, '百分比': (':.1f%', percent_values)}
+        )
+        fig.update_traces(textposition='outside')
+        fig.update_layout(
+            xaxis=dict(showgrid=True, gridcolor='rgba(211,211,211,0.3)'),
+            yaxis=dict(showgrid=False),
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
+        
+    elif style == 'sorted':
+        # 風格3: 排序並添加百分比
+        category_counts = category_counts.sort_values('數量')
+        fig = px.bar(
+            category_counts, 
+            y='分類', 
+            x='數量',
+            title='缺失分類分布 (前10名)',
+            orientation='h',
+            color_discrete_sequence=['#3498db', '#2980b9', '#1f618d', '#154360'],
+            text='數量',
+            hover_data={'分類': True, '數量': True, '百分比': (':.1f%', percent_values)}
+        )
+        # 顯示數量和百分比
+        # fig.update_traces(
+        #     texttemplate='%{text} (%{customdata[2]:.1f}%)', 
+        #     textposition='outside'
+        # )
+        
+    else:  # default
+        # 原始風格
+        fig = px.bar(
+            category_counts, 
+            y='分類', 
+            x='數量',
+            title='缺失分類分布 (前10名)',
+            orientation='h',
+            color_discrete_sequence=['#3498db']
+        )
+    
+    # 共同的布局設置
+    fig.update_layout(
+        height=400,
+        title={
+            'text': "缺失分類分布 (前10名)",
+            'y':0.95,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        xaxis_title="缺失數量",
+        yaxis_title="分類"
+    )
     
     return fig
 
-def display_vendor_chart(df):
+def display_vendor_chart(df, style='default'):
     if df.empty:
         return
         
@@ -160,17 +310,117 @@ def display_vendor_chart(df):
     if len(vendor_counts) > 10:
         vendor_counts = vendor_counts.head(10)
     
-    # 創建水平條形圖
-    fig = px.bar(
-        vendor_counts, 
-        y='廠商', 
-        x='數量',
-        title='廠商缺失分布 (前10名)',
-        orientation='h',
-        color_discrete_sequence=['#2ecc71']
-    )
+    # 計算百分比 (僅用於內部計算，不添加到DataFrame)
+    percent_values = vendor_counts['數量'] / vendor_counts['數量'].sum() * 100
     
-    fig.update_layout(height=400)
+    # 根據選擇的風格創建不同的條形圖
+    if style == 'gradient':
+        # 風格1: 漸變色彩
+        fig = px.bar(
+            vendor_counts, 
+            y='廠商', 
+            x='數量',
+            title='廠商缺失分布 (前10名)',
+            orientation='h',
+            color='數量',  # 根據數量著色
+            color_continuous_scale=px.colors.sequential.Greens,
+            text='數量'  # 在柱子上顯示數值
+        )
+        fig.update_traces(textposition='outside')
+        
+    elif style == 'interactive':
+        # 風格2: 互動式按鈕
+        fig = px.bar(
+            vendor_counts, 
+            y='廠商', 
+            x='數量',
+            title='廠商缺失分布 (前10名)',
+            orientation='h',
+            color_discrete_sequence=['#2ecc71'],
+            text='數量'
+        )
+        fig.update_traces(textposition='outside')
+        
+        # 添加按鈕切換不同視圖
+        fig.update_layout(
+            updatemenus=[
+                dict(
+                    buttons=[
+                        dict(label="數量",
+                             method="update",
+                             args=[{"x": [vendor_counts['數量']]}, {"xaxis": {"title": "缺失數量"}}]),
+                        dict(label="百分比",
+                             method="update",
+                             args=[{"x": [percent_values]}, {"xaxis": {"title": "百分比 (%)"}}]),
+                    ],
+                    direction="down",
+                    pad={"r": 10, "t": 10},
+                    showactive=True,
+                    x=0.1,
+                    y=1.15,
+                    xanchor="left",
+                    yanchor="top"
+                )
+            ]
+        )
+        
+    elif style == 'comparison':
+        # 風格3: 比較風格 (排序並添加參考線)
+        vendor_counts = vendor_counts.sort_values('數量')
+        fig = px.bar(
+            vendor_counts, 
+            y='廠商', 
+            x='數量',
+            title='廠商缺失分布 (前10名)',
+            orientation='h',
+            color_discrete_sequence=['#2ecc71'],
+            text='數量',
+            hover_data={'廠商': True, '數量': True, '百分比': (':.1f%', percent_values)}
+        )
+        fig.update_traces(textposition='outside')
+        
+        # 添加平均值參考線
+        avg_value = vendor_counts['數量'].mean()
+        fig.add_shape(
+            type="line",
+            x0=avg_value, x1=avg_value,
+            y0=-0.5, y1=len(vendor_counts)-0.5,
+            line=dict(color="red", width=2, dash="dash")
+        )
+        
+        # 添加註釋
+        fig.add_annotation(
+            x=avg_value,
+            y=len(vendor_counts)-1,
+            text=f"平均: {avg_value:.1f}",
+            showarrow=True,
+            arrowhead=1
+        )
+        
+    else:  # default
+        # 原始風格
+        fig = px.bar(
+            vendor_counts, 
+            y='廠商', 
+            x='數量',
+            title='廠商缺失分布 (前10名)',
+            orientation='h',
+            color_discrete_sequence=['#2ecc71']
+        )
+    
+    # 共同的布局設置
+    fig.update_layout(
+        height=400,
+        title={
+            'text': "廠商缺失分布 (前10名)",
+            'y':0.95,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        xaxis_title="缺失數量",
+        yaxis_title="廠商"
+    )
     
     return fig
 
@@ -287,7 +537,14 @@ def display_vendor_performance(df):
         })
     perf_df = pd.DataFrame(vendor_stats).sort_values('完成率', ascending=False).head(10)
     st.markdown("#### 🏆 廠商績效指標 (前10名)")
-    st.dataframe(perf_df.style.format({'完成率': '{:.1f}%', '平均修復天數': '{:.1f}'}), use_container_width=True)
+    # 使用自定義格式化函數來處理可能是字符串的值
+    def format_value(val):
+        if isinstance(val, (int, float)):
+            return f"{val:.1f}"
+        return val
+        
+    #st.dataframe(perf_df.style.format({'完成率': '{:.1f}%'}).format({'平均修復天數': format_value}), use_container_width=True)
+    st.dataframe(perf_df)
 
     # 可選：條形圖視覺化
     fig = go.Figure()
@@ -326,6 +583,51 @@ def filter_df(df):
     
     return df
 
+def display_defect_types(df):
+    # st.markdown("## 缺失類型分布儀表板")
+    
+    if df.empty:
+        st.info("目前沒有缺失資料")
+        return
+    
+    # 缺失分類分布
+    # st.markdown("### 缺失分類分布")
+    
+    if 'category_name' in df.columns:
+        # 計算各分類的缺失數量
+        category_counts = df['category_name'].value_counts().reset_index()
+        category_counts.columns = ['分類', '數量']
+        
+        # 計算百分比
+        total = category_counts['數量'].sum()
+        category_counts['百分比'] = category_counts['數量'] / total * 100
+        
+        # 只取前10個分類
+        if len(category_counts) > 10:
+            category_counts = category_counts.head(10)
+        
+        # 創建環形圖
+        fig = px.pie(
+            category_counts,
+            values='數量',
+            names='分類',
+            title='缺失分類分布',
+            hole=0.4,  # 環形圖中心孔的大小
+            color_discrete_sequence=px.colors.qualitative.Pastel
+        )
+        
+        # 添加百分比標籤
+        fig.update_traces(
+            textposition='inside',
+            textinfo='percent+label',
+            insidetextorientation='radial'
+        )
+        
+        fig.update_layout(height=600)
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+
 # ====== MAIN PAGE =======
 
 show_project()
@@ -337,13 +639,28 @@ df = get_defects_df()
 df = filter_df(df)
 
 # 顯示主要指標
-display_metrics(df)
+# display_metrics(df)
 
-tab1, tab2, tab3 = st.tabs(["📊 總覽", "🏆 廠商績效", "📚 分類分析"])
+tab1, tab2, tab3 = st.tabs(["📊 總覽", "🏆 廠商分析", "📚 缺失分類"])
 with tab1:
-    st.plotly_chart(display_category_chart(df), use_container_width=True)
-    st.plotly_chart(display_vendor_chart(df), use_container_width=True)
+    display_metrics(df)
+    st.divider()
+    st.caption("* 以下為所有缺失的詳細資料")
+    st.dataframe(df)
+    # 分類圖表風格選擇
+    # category_styles = ['default', 'gradient', 'modern', 'sorted']
+    # category_style = st.selectbox('選擇分類圖表風格', category_styles, key='category_style')
+    # st.plotly_chart(display_category_chart(df, style=category_style), use_container_width=True)
 with tab2:
-    display_vendor_performance(df)
+    # 廠商圖表風格選擇
+    # vendor_styles = ['default', 'gradient', 'interactive', 'comparison']
+    # vendor_style = st.selectbox('選擇廠商圖表風格', vendor_styles, key='vendor_style',index=1)
+    st.plotly_chart(display_vendor_chart(df, style='gradient'), use_container_width=True)
+    
 with tab3:
-    pass
+    display_defect_types(df)
+    # st.divider()
+    # st.plotly_chart(display_category_chart(df, style='sorted'), use_container_width=True)
+
+# with tab3:
+#     pass
