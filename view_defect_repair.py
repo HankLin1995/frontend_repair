@@ -94,7 +94,7 @@ with st.container(border=True):
                     time.sleep(3)
                     st.balloons()
                     # 重新載入頁面以顯示最新資訊
-                    # st.rerun()
+                    st.rerun()
                 else:
                     st.error("提交改善報告失敗，請稍後再試")
 
