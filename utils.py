@@ -17,8 +17,10 @@ def get_status_class(status):
         return '🔴 已取消'
     elif status == '等待中':
         return '⚪ 等待中'
+    elif status == '待確認':
+        return '🟣 待確認'
     else:
-        return '⚪ 未設定'
+        return '🟤 未設定'
 
 def get_urgency_class(days):
     try:

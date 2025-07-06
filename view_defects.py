@@ -69,7 +69,7 @@ def get_filter_df(df):
             search_text = st.text_input("🔍 搜尋", key="lookfor", placeholder="輸入關鍵字...")
         with col2:
             status_filter = st.selectbox("📊 狀態", 
-                                    options=["全部", "🟡 改善中", "🟢 已完成", "🔴 已取消", "⚪ 等待中"],
+                                    options=["全部", "🟡 改善中", "🟢 已完成", "🔴 已取消", "⚪ 等待中","🟣 待確認","🟤 未設定"],
                                     key="status_filter")
         with col3:
             category_filter = st.selectbox("🏷️ 分類", 

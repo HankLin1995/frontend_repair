@@ -671,7 +671,7 @@ def create_defect_mark(data: Dict[str, Any]) -> Dict[str, Any]:
         return {}
 
 
-def upload_defect_image(defect_id: int, image_file, description: str = "") -> Dict[str, Any]:
+def upload_defect_image(defect_id: int, image_file, description: str = "", related_type: str = "defect") -> Dict[str, Any]:
     """
     Upload an image for a defect (using /photos/ endpoint)
     Args:
@@ -687,7 +687,7 @@ def upload_defect_image(defect_id: int, image_file, description: str = "") -> Di
             "file": image_file  # image_file can be (filename, fileobj, mimetype) or file-like
         }
         data = {
-            "related_type": "defect",
+            "related_type": related_type,
             "related_id": str(defect_id),
             "description": description or ""
         }
@@ -745,6 +745,36 @@ def get_defect(defect_id: int,with_marks: bool=False,with_photos: bool=False,wit
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Error fetching defect {defect_id}: {e}")
+        if hasattr(e, "response") and e.response is not None:
+            print(f"Response content: {e.response.content}")
+        return {}
+
+
+def create_improvement_by_unique_code(unique_code: str, content: str, improvement_date: str) -> Dict[str, Any]:
+    """
+    廠商透過唯一碼提交改善報告
+    
+    Args:
+        unique_code: 缺失唯一碼
+        content: 廠商提交的改善內容
+        improvement_date: 改善日期 (格式: YYYY-MM-DD)
+        
+    Returns:
+        新建立的改善報告數據
+    """
+    url = f"{BASE_URL}/improvements/by-unique-code/{unique_code}"
+    
+    payload = {
+        "content": content,
+        "improvement_date": improvement_date
+    }
+    
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating improvement by unique code {unique_code}: {e}")
         if hasattr(e, "response") and e.response is not None:
             print(f"Response content: {e.response.content}")
         return {}

@@ -1,8 +1,14 @@
 import streamlit as st
 import api
 from utils import draw_basemap_with_marker
+import datetime
+import time
 
 defect_data=api.get_defect_by_unique_code(st.session_state.defect_unique_code)
+
+if defect_data['status'] != '改善中':
+    st.error("無法修繕，因為狀態不是改善中")
+    st.stop()
 
 # st.write(defect_data)
 
@@ -10,7 +16,7 @@ defect_data=api.get_defect_by_unique_code(st.session_state.defect_unique_code)
 
 defect_detail=api.get_defect(defect_data['defect_id'],with_photos=True,with_marks=True,with_full_related=True)
 
-st.sidebar.json(defect_detail)
+# st.sidebar.json(defect_detail)
 
 
 with st.expander("🔢 缺失詳情",expanded=True):
@@ -32,19 +38,24 @@ with st.expander("🔢 缺失詳情",expanded=True):
 
 with st.expander("📷缺失照片"):
     img_cols = st.columns(3)
-    for i, file in enumerate(defect_detail['photos']):
-        with img_cols[i % 3]:
-            st.image("http://localhost:8000"+file['image_url'])
+    if defect_detail['photos']: 
+        for i, file in enumerate(defect_detail['photos']):
+            with img_cols[i % 3]:
+                st.image("http://localhost:8000"+file['image_url'])
+    else:
+        st.info("無缺失照片")
 
 with st.expander("📍缺失標記"):
-    base_map=api.get_basemap(defect_detail['defect_marks'][0]['base_map_id'])
-    base_map_image="http://localhost:8000/"+base_map['file_path']
+    try:
+        base_map=api.get_basemap(defect_detail['defect_marks'][0]['base_map_id'])
+        base_map_image="http://localhost:8000/"+base_map['file_path']
 
-    # st.write(base_map)
-    x = defect_detail['defect_marks'][0]['coordinate_x']
-    y = defect_detail['defect_marks'][0]['coordinate_y']
-    img = draw_basemap_with_marker(base_map_image, x, y, radius=15)
-    st.image(img, caption=f"**座標：** X = `{x}`, Y = `{y}`")
+        x = defect_detail['defect_marks'][0]['coordinate_x']
+        y = defect_detail['defect_marks'][0]['coordinate_y']
+        img = draw_basemap_with_marker(base_map_image, x, y, radius=15)
+        st.image(img, caption=f"**座標：** X = `{x}`, Y = `{y}`")
+    except:
+        st.error("無法顯示缺失標記")        
 
     
 
@@ -53,7 +64,40 @@ with st.container(border=True):
     repair_images=st.file_uploader("上傳修繕照片",accept_multiple_files=True)
 
     if st.button("確認修繕",type="primary",use_container_width=True):
-        pass
+        if not repair_note:
+            st.error("請輸入修繕說明")
+        else:
+            # 獲取當前日期作為改善日期
+            today = datetime.datetime.now().strftime("%Y-%m-%d")
+            
+            # 使用唯一碼提交改善報告
+            with st.spinner("正在提交改善報告..."):
+                result = api.create_improvement_by_unique_code(
+                    unique_code=st.session_state.defect_unique_code,
+                    content=repair_note,
+                    improvement_date=today
+                )
+                
+                if result:
+                    # 上傳修繕照片
+                    if repair_images:
+                        with st.spinner("正在上傳修繕照片..."):
+                            for img in repair_images:
+                                api.upload_defect_image(
+                                    defect_id=result['improvement_id'],
+                                    image_file=img,
+                                    description="修繕照片",
+                                    related_type="improvement"
+                                )
+                    
+                    st.success("修繕資訊已成功提交！")
+                    time.sleep(3)
+                    st.balloons()
+                    # 重新載入頁面以顯示最新資訊
+                    # st.rerun()
+                else:
+                    st.error("提交改善報告失敗，請稍後再試")
+
 
 # def display_defect_details():
 #     defect = st.session_state.defect_data
