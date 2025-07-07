@@ -1,3 +1,4 @@
+from turtle import width
 import streamlit as st
 import api
 import pandas as pd
@@ -127,6 +128,81 @@ def delete_defects(df_selected):
                 st.error(f"刪除缺失編號 {defect_id} 時發生錯誤")
         st.rerun()  # Refresh the page to update the list
 
+@st.dialog("缺失歷史記錄",width="large")
+def show_defect_history(defect_id):
+    # 獲取缺失的完整信息，包括修繕歷史
+    defect_detail = api.get_defect(defect_id, with_photos=True, with_marks=True, with_improvements=True, with_full_related=True)
+    
+    if not defect_detail:
+        st.error("無法獲取缺失資訊")
+        return
+    
+    tab1,tab2=st.tabs(["📋基本資訊","📷相關照片"])
+    with tab1:
+        with st.container(border=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown(f"**缺失編號:** {defect_detail.get('defect_id', '—')}")
+                st.markdown(f"**位置:** {defect_detail.get('location', '—')}")
+                st.markdown(f"**分類:** {defect_detail.get('category_name', '—')}")
+        with col2:
+            st.markdown(f"**建立日期:** {pd.to_datetime(defect_detail.get('created_at', '')).strftime('%Y-%m-%d') if defect_detail.get('created_at') else '—'}")
+            st.markdown(f"**指派廠商:** {defect_detail.get('assigned_vendor_name', '—')}")
+            st.markdown(f"**目前狀態:** {defect_detail.get('status', '—')}")
+            
+        # 顯示缺失描述
+        with st.container(border=True):
+            st.markdown(f"**缺失描述:** {defect_detail.get('defect_description', '—')}")
+        with st.container(border=True):
+            imp=defect_detail['improvements']
+            st.markdown(f"**修繕內容:** {imp[0].get('content')}")
+
+        # st.markdown("---")
+
+    with tab2:
+        # 顯示相關照片
+
+        col1,col2=st.columns(2)
+
+        with col1:
+            st.subheader("缺失照片")
+            defect_photos = [photo for photo in defect_detail.get('photos', []) if photo['related_type'] == 'defect']
+            if defect_photos:
+                # img_cols = st.columns(3)
+                for i, photo in enumerate(defect_photos):
+                    # with img_cols[i % 3]:
+                    st.image(f"{api.BASE_URL}{photo['image_url']}")
+            else:
+                st.info("無缺失照片")
+            
+        with col2:
+            # 顯示改善照片
+            st.subheader("修繕照片")
+            improvement_photos = [photo for photo in defect_detail.get('photos', []) if photo['related_type'] == 'improvement']
+            if improvement_photos:
+                # img_cols = st.columns(3)
+                for i, photo in enumerate(improvement_photos):
+                    # with img_cols[i % 3]:
+                        st.image(f"{api.BASE_URL}{photo['image_url']}")
+            else:
+                st.info("無修繕照片")
+
+    st.markdown("---")
+
+    col_left,col_right=st.columns(2)
+
+    with col_left:
+        if st.button("✅ 確認結果",use_container_width=True):
+            api.update_defect(defect_id, {"status": "已完成"})
+            st.toast("修繕已完成")
+            st.rerun()
+
+    with col_right:
+        if st.button("🔄 退回重辦",use_container_width=True):
+            api.update_defect(defect_id, {"status": "改善中"})
+            st.toast("退回重辦")
+            st.rerun()
+
 #====== MAIN PAGE=======
 
 show_project()
@@ -171,8 +247,15 @@ if selected_rows:
             pass
 
     with col2:
-        code = df_filter.iloc[selected_rows[0]]['unique_code']
-        st.link_button(":star: 修繕",f"http://localhost:8501?defect_unique_code={code}",use_container_width=True)
+        selected_status=df_filter.iloc[selected_rows[0]]['status']
+        if selected_status=="🟡 改善中":
+            code = df_filter.iloc[selected_rows[0]]['unique_code']
+            st.link_button(":star: 修繕",f"http://localhost:8501?defect_unique_code={code}",use_container_width=True)
+        if selected_status=="🟣 待確認":
+            if st.button("📜 確認",key="confirm",use_container_width=True):
+                defect_id = df_filter.iloc[selected_rows[0]]['defect_id']
+                show_defect_history(defect_id)
+
     with col3:
         if st.button("🗑️ 刪除",key="delete",use_container_width=True):
             df_selected = df_filter.iloc[selected_rows]

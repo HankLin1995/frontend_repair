@@ -5,6 +5,8 @@ import datetime
 import time
 from api import BASE_URL
 defect_data=api.get_defect_by_unique_code(st.session_state.defect_unique_code)
+# st.write(st.session_state.defect_unique_code)
+# st.write(defect_data)
 
 if defect_data['status'] != '改善中':
     st.error("無法修繕，因為狀態不是改善中")

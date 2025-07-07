@@ -10,8 +10,10 @@ if "active_project_id" not in st.session_state:
 if "defect_unique_code" not in st.session_state:
     st.session_state.defect_unique_code = None
 
-st.set_page_config(page_title="工程缺失管理系統", page_icon=":material/edit_document:",layout="wide")
-st.logo("logo.jpg")
+VERSION="1.0.0"
+
+st.set_page_config(page_title="缺失追蹤系統" +VERSION, page_icon="🛠️",layout="wide")
+st.logo("logo2.png",size="medium")
 
 #get parameters from url
 
@@ -38,7 +40,7 @@ else:
 
     pg=st.navigation(
         {
-            "用戶": [users_page,user_page],
+            #"用戶": [users_page,user_page],
             "專案": [projects_page,project_page],
             "缺失": [defect_page,defect_add_page],
             "統計": [dashboard_page]
