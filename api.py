@@ -1,7 +1,8 @@
 import requests
 from typing import Dict, List, Optional, Union, Any
 import os
-
+from dotenv import load_dotenv
+load_dotenv()
 # Base URL for the API
 BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8000')
 

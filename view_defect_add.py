@@ -10,7 +10,7 @@ from streamlit_extras.floating_button import floating_button
 from streamlit_extras.add_vertical_space import add_vertical_space
 import streamlit_antd_components as sac
 import time
-
+from api import BASE_URL
 default_session_state = {
     "basemap_id": None,
     "basemap_mark_X": None,
@@ -116,7 +116,7 @@ def display_basemap_add(basemaps):
     if selected_base_map != "請選擇":
         selected_map_data = next((b for b in basemaps if b['map_name'] == selected_base_map), None)
         if selected_map_data:
-            image_url = "http://localhost:8000/" + selected_map_data['file_path']
+            image_url = BASE_URL+"/"+selected_map_data['file_path']
 
             # 使用共用函式取得已標記圖片
             x = st.session_state.basemap_mark_X
@@ -217,7 +217,7 @@ def display_defect_result():
         st.markdown("#### 🗺️ 底圖標記")
         basemap = api.get_basemap(st.session_state.basemap_id)
         # show image with red circle
-        image_url = "http://localhost:8000/" + basemap['file_path']
+        image_url = BASE_URL+"/"+basemap['file_path']
 
         # 使用共用函式取得已標記圖片
         x = st.session_state.basemap_mark_X

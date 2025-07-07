@@ -4,6 +4,7 @@ import api
 from datetime import datetime
 from streamlit_extras.floating_button import floating_button
 from PIL import Image
+from api import BASE_URL
 
 # ============= 工具函數 =============
 
@@ -124,7 +125,7 @@ def render_project_card(project,role):
     # 確定這是否為當前工程
     is_active = st.session_state.active_project_id == project['project_id']
 
-    image_url="http://localhost:8000/"+project['image_path']
+    image_url=BASE_URL+"/"+project['image_path']
 
     # 創建卡片容器
     with st.container(border=True):

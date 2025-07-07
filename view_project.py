@@ -3,6 +3,7 @@ import api
 from streamlit_extras.floating_button import floating_button
 from streamlit_avatar import avatar
 from PIL import Image
+from api import BASE_URL
 import pandas as pd
 
 def crop_and_resize_image(img, target_w=5760, target_h=3840):
@@ -188,7 +189,7 @@ def display_project_basemaps():
         for i, basemap in enumerate(basemaps):
             with cols[i % 3]:
                 with st.container(border=True):
-                    st.image("http://localhost:8000/"+basemap['file_path'])
+                    st.image(BASE_URL+"/"+basemap['file_path'])
                     st.markdown("#### " + basemap['map_name'])
                     col3,col4=st.columns([1,1])
                     with col3:

@@ -3,7 +3,7 @@ import api
 from utils import draw_basemap_with_marker
 import datetime
 import time
-
+from api import BASE_URL
 defect_data=api.get_defect_by_unique_code(st.session_state.defect_unique_code)
 
 if defect_data['status'] != '改善中':
@@ -41,14 +41,14 @@ with st.expander("📷缺失照片"):
     if defect_detail['photos']: 
         for i, file in enumerate(defect_detail['photos']):
             with img_cols[i % 3]:
-                st.image("http://localhost:8000"+file['image_url'])
+                st.image(BASE_URL+file['image_url'])
     else:
         st.info("無缺失照片")
 
 with st.expander("📍缺失標記"):
     try:
         base_map=api.get_basemap(defect_detail['defect_marks'][0]['base_map_id'])
-        base_map_image="http://localhost:8000/"+base_map['file_path']
+        base_map_image=BASE_URL+"/"+base_map['file_path']
 
         x = defect_detail['defect_marks'][0]['coordinate_x']
         y = defect_detail['defect_marks'][0]['coordinate_y']
