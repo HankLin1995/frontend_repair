@@ -573,7 +573,7 @@ def create_defect(project_id: int,user_id:int, data: Dict[str, Any]) -> Dict[str
             - status: Status of the defect (optional)
             
     Returns:
-        Defect data including defect_id
+        Defect data including defect_id or error information
     """
     url = f"{BASE_URL}/defects/"
 
@@ -583,16 +583,19 @@ def create_defect(project_id: int,user_id:int, data: Dict[str, Any]) -> Dict[str
         "submitted_id": user_id,  # Using project_id as submitted_id for now
         **data
     }
-    
+
     try:
         response = requests.post(url, json=payload)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f"Error creating defect: {e}")
-        if hasattr(e, "response") and e.response is not None:
-            print(f"Response content: {e.response.content}")
-        return {}
+        # error_info = {"error": str(e), "success": False}
+        # if hasattr(e, "response") and e.response is not None:
+        #     try:
+        #         error_info["response"] = e.response.json()
+        #     except:
+        #         error_info["response"] = e.response.content.decode('utf-8', errors='replace')
+        return e.response.json()
 
 def delete_defect(defect_id: int) -> bool:
     """

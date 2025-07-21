@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 if "user_mail" not in st.session_state:
-    st.session_state.user_mail = "test@example.com"
+    st.session_state.user_mail = "user@example.com"
 
 if "active_project_id" not in st.session_state:
     st.session_state.active_project_id = 1
@@ -10,24 +10,43 @@ if "active_project_id" not in st.session_state:
 if "defect_unique_code" not in st.session_state:
     st.session_state.defect_unique_code = None
 
-VERSION="1.0.1"
+def login_info():
+    col1, col2 = st.columns(2)
 
-st.set_page_config(page_title="缺失追蹤系統" +VERSION, page_icon="🛠️",layout="wide")
-st.logo("logo2.png",size="medium")
+    with col1:
+        st.markdown("### 📝 使用說明")
+        st.markdown("""
+        1. **登入 Google 帳號**  
+        2. **建立工程**  
+        3. **新增抽查表**  
+            - 上傳 PDF  
+            - 填寫基本資料  
+            - 上傳多張照片  
+        4. **查看清單並列印報告**
+                """)
 
-#get parameters from url
+    with col2:
+        st.markdown("### ⚠️ 注意事項")
+        st.warning("""
+        - 系統目前部署在我的個人主機  
+        - 如需部署在指定主機，歡迎聯繫我！
+                """)
 
-if st.query_params.get("defect_unique_code"):
-    st.session_state.defect_unique_code = st.query_params.get("defect_unique_code")
-    repair_page=st.Page("view_defect_repair.py", title="修繕", icon=":material/work:")
+        st.divider()
 
-    pg=st.navigation(
-        {
-            "修繕": [repair_page]
-        }
-    )
-    pg.run()
-else:   
+        st.markdown("### 📬 聯絡資訊")
+
+        col3,col4 = st.columns(2)
+
+        with col3:
+            st.image("https://www.hanksvba.com/images/LINE_QRCODE.PNG", width=150, caption="LINE官方帳號")
+
+        with col4:
+
+            st.link_button("🌎 Hank's blog", "https://www.hanksvba.com/",type="secondary")
+
+def main():
+
     users_page = st.Page("view_users.py", title="用戶清單", icon=":material/groups:")  # 多個用戶 => groups
     user_page = st.Page("view_user.py", title="用戶詳情", icon=":material/person:")  # 個別用戶 => person
     projects_page = st.Page("view_projects.py", title="工程列表", icon=":material/work:")  # 專案清單 => work
@@ -48,3 +67,37 @@ else:
     )
 
     pg.run()
+
+###########################
+
+VERSION="1.0.1"
+
+st.set_page_config(page_title="缺失追蹤系統" +VERSION, page_icon="🛠️",layout="wide")
+st.logo("logo2.png",size="medium")
+
+#get parameters from url
+
+if st.query_params.get("defect_unique_code"):
+
+    st.session_state.defect_unique_code = st.query_params.get("defect_unique_code")
+    repair_page=st.Page("view_defect_repair.py", title="修繕", icon=":material/work:")
+
+    pg=st.navigation(
+        {
+            "修繕": [repair_page]
+        }
+    )
+    pg.run()
+
+else:
+
+    if not st.user.is_logged_in:
+        login_info()
+        if st.sidebar.button("Google 登入",type="primary"):
+            st.login()
+    else:
+        main()
+        if st.sidebar.button(f"👋 {st.user.name}登出",type="secondary"):
+            st.logout()
+
+    # main()
