@@ -10,7 +10,7 @@ if "active_project_id" not in st.session_state:
 if "defect_unique_code" not in st.session_state:
     st.session_state.defect_unique_code = None
 
-VERSION="1.0.0"
+VERSION="1.0.1"
 
 st.set_page_config(page_title="缺失追蹤系統" +VERSION, page_icon="🛠️",layout="wide")
 st.logo("logo2.png",size="medium")

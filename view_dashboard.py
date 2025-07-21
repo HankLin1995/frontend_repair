@@ -20,11 +20,15 @@ def show_project():
 # @st.cache_data
 def get_defects_df():
     defects = api.get_defects(st.session_state.active_project_id)
-    if not defects:
-        return pd.DataFrame()
-        
+    # if not defects:
+    #     return pd.DataFrame()
+
     df_defects = pd.DataFrame(defects)
-    
+
+    if df_defects.empty:
+        st.info("目前沒有缺失，請新增缺失。")
+        st.stop()
+
     # 轉換日期格式
     df_defects['created_at_dt'] = pd.to_datetime(df_defects['created_at'])
     df_defects['created_date'] = df_defects['created_at_dt'].dt.date

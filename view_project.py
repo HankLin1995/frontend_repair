@@ -217,7 +217,7 @@ def display_project_members():
 
     display_user_card(roles)
 
-    st.markdown("---")
+    # st.markdown("---")
 
     if floating_button(":material/add: 新增工作夥伴",key="add_partner"):
         invite_user()

@@ -22,6 +22,10 @@ def get_defects_df():
 
     df_defects=pd.DataFrame(defects)
 
+    if df_defects.empty:
+        st.info("目前沒有缺失，請新增缺失。")
+        st.stop()
+
     # 轉換日期格式以計算差異
     df_defects['created_at_dt'] = pd.to_datetime(df_defects['created_at'])
 
