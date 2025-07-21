@@ -6,3 +6,4 @@ streamlit-carousel
 streamlit_extras
 streamlit_antd_components
 streamlit-image-coordinates
+dotenv
